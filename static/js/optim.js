@@ -390,7 +390,7 @@ const Model1D = (() => {
 
   function drawAll() {
     drawPanel(cvAdam, adam, DS.token("--gau"), `AdamW, step ${adam.t} of ${ADAM_STEPS}`, false);
-    drawPanel(cvDsfw, dsfw, DS.token("--dir"), `DSFW, outer step ${dsfw.t} of ${DSFW_STEPS}`, true);
+    drawPanel(cvDsfw, dsfw, DS.token("--dir"), `DSFW (Ours), outer step ${dsfw.t} of ${DSFW_STEPS}`, true);
     drawLoss();
     const la = adam.hist[adam.hist.length - 1][1], ld = dsfw.hist[dsfw.hist.length - 1][1];
     outAdam.textContent = `loss ${la.toExponential(1)}, ${matched(adam.C)} of ${K} found`;

@@ -544,7 +544,7 @@ const Race2D = (() => {
     const K = target.C.length;
     out.adam.textContent = `loss ${state.adam.L.toExponential(1)}, ${found(state.adam.C)} of ${K} found`;
     out.dsfw.textContent = `loss ${state.dsfw.L.toExponential(1)}, ${found(state.dsfw.C)} of ${K} found`;
-    out.dsfwTitle.textContent = dsfwView === "cert" ? "DSFW certificate" : "DSFW";
+    out.dsfwTitle.textContent = dsfwView === "cert" ? "DSFW (Ours), certificate" : "DSFW (Ours)";
   }
 
   // ---- Interaction -------------------------------------------------------

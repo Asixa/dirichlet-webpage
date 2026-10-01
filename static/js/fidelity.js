@@ -448,7 +448,7 @@ function makeFit1D(stage, out) {
   function draw() {
     const dProf = dfit ? dirichletProfile(dfit.C, dfit.b) : null;
     const dN = dProf ? Fidelity.nmseDb(dProf, scene.target) : null;
-    drawPanel(cvD, dProf, dfit ? dfit.C.map((p) => p[0]) : [], DS.token("--dir"), `Dirichlet × ${scene.K}`, dN, false);
+    drawPanel(cvD, dProf, dfit ? dfit.C.map((p) => p[0]) : [], DS.token("--dir"), `Dirichlet × ${scene.K} (Ours)`, dN, false);
     const gm = gstate ? Array.from(gstate.m, Math.abs) : null;
     const gN = gm ? Fidelity.nmseDb(gm, scene.target) : null;
     drawPanel(cvG, gm, gstate ? gstate.G.map((p) => p[0]) : [], DS.token("--gau"), `Gaussian × ${M}`, gN, false);
@@ -735,7 +735,7 @@ function makeFit2D(stage, out) {
       paint(canv.gau, prof);
       out.gnmse.textContent = Fidelity.fmtDb(Fidelity.nmseDb(Array.from(gstate.m, Math.abs), scene.target));
     }
-    titles.dir.textContent = `Dirichlet × ${scene.K}`;
+    titles.dir.textContent = `Dirichlet × ${scene.K} (Ours)`;
     titles.gau.textContent = `Gaussian × ${M}`;
     out.dparams.textContent = `${scene.K * 4}`;
     out.gparams.textContent = `${M * 5}`;

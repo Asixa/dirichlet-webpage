@@ -4,7 +4,7 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Dirichlet Splatting: Differentiable Rendering for Wave-Based Inverse Problems</title>
-  <meta name="description" content="A differentiable renderer for radar, sonar, and terahertz imaging whose splats are the exact Dirichlet point spread of a coherent sensor. SIGGRAPH Asia 2026.">
+  <meta name="description" content="Dirichlet Splatting is a differentiable rendering method for inverse problems with wave-based coherent sensors, using analytic finite-window DFT responses. SIGGRAPH Asia 2026.">
   <meta name="author" content="Xingyu Chen, Wuqiong Zhao, Xinyu Zhang, Tzu-Mao Li">
   <meta name="keywords" content="Dirichlet Splatting, differentiable rendering, inverse rendering, coherent imaging, Dirichlet kernel, terahertz imaging, radar, mmWave, sonar, Gaussian splatting, sliding Frank-Wolfe, SIGGRAPH Asia 2026">
   <meta name="robots" content="index, follow">
@@ -15,7 +15,7 @@
   <meta property="og:type" content="article">
   <meta property="og:site_name" content="Dirichlet Splatting">
   <meta property="og:title" content="Dirichlet Splatting: Differentiable Rendering for Wave-Based Inverse Problems">
-  <meta property="og:description" content="A differentiable renderer for radar, sonar, and terahertz imaging whose splats are the exact Dirichlet point spread of a coherent sensor. SIGGRAPH Asia 2026.">
+  <meta property="og:description" content="Dirichlet Splatting is a differentiable rendering method for inverse problems with wave-based coherent sensors, using analytic finite-window DFT responses. SIGGRAPH Asia 2026.">
   <meta property="og:url" content="https://dirichlet.xingyuchen.me/">
   <meta property="og:image" content="https://dirichlet.xingyuchen.me/static/images/social-card.jpg">
   <meta property="og:image:width" content="1200">
@@ -23,7 +23,7 @@
   <meta property="og:image:alt" content="Dirichlet Splatting pipeline: a bunny scanned by a coherent sensor, its spectrum, Dirichlet kernels, and the reconstructed surfel bunny.">
   <meta name="twitter:card" content="summary_large_image">
   <meta name="twitter:title" content="Dirichlet Splatting: Differentiable Rendering for Wave-Based Inverse Problems">
-  <meta name="twitter:description" content="A differentiable renderer for radar, sonar, and terahertz imaging whose splats are the exact Dirichlet point spread of a coherent sensor. SIGGRAPH Asia 2026.">
+  <meta name="twitter:description" content="Dirichlet Splatting is a differentiable rendering method for inverse problems with wave-based coherent sensors, using analytic finite-window DFT responses. SIGGRAPH Asia 2026.">
   <meta name="twitter:image" content="https://dirichlet.xingyuchen.me/static/images/social-card.jpg">
 
   <!-- Google Scholar (Highwire Press tags). -->
@@ -146,7 +146,7 @@
 </header>
 
 <main>
-<noscript><p class="wrap noscript">The interactive figures on this page need JavaScript. The text and images read fine without it.</p></noscript>
+<noscript><p class="wrap noscript">Interactive figures require JavaScript. Text and static figures remain available without JavaScript.</p></noscript>
 
 <section class="wrap teaser" aria-labelledby="teaser-title">
   <h2 id="teaser-title" class="visually-hidden">Teaser</h2>
@@ -156,7 +156,7 @@
            srcset="static/images/teaser-1200.webp 1200w, static/images/teaser-2000.webp 2000w"
            sizes="(max-width: 1140px) 100vw, 1100px"
            alt="Pipeline from left to right: a bunny scanned by a coherent sensor, its measured spectrum, a stack of Fourier-space slices, one-dimensional Dirichlet kernels for three surfels, and the reconstructed bunny made of oriented surfel splats.">
-      <!-- Forward/backward harpoons from the paper's teaser, centred at 73.5% of the width. -->
+      <!-- Forward/backward harpoons from the paper's teaser, centered at 73.5% of the width. -->
       <div class="teaser-flow" aria-hidden="true">
         <span class="flow-fwd">Forward</span>
         <svg viewBox="0 0 100 24">
@@ -175,7 +175,7 @@
     </ol>
     <div class="trace">
       <canvas id="hero-trace" role="img" aria-label="A Dirichlet kernel in decibels that follows the pointer."></canvas>
-      <p>The point spread of one reflector, in dB. Move your pointer across it; dots are the samples a sensor records.</p>
+      <p>The point-spread function of a single reflector is shown in dB. Pointer position controls the reflector offset. Dots indicate the sampled DFT bins.</p>
     </div>
   </figure>
 </section>
@@ -189,12 +189,12 @@
 
 <!-- ===================================================================== -->
 <section class="wrap block" aria-labelledby="kernel">
-  <h2 id="kernel">A coherent sensor sees a Dirichlet kernel</h2>
+  <h2 id="kernel">Dirichlet Point-Spread Function</h2>
   <div class="prose">
-    <p>Radar, sonar, and terahertz scanners mix each echo against the transmitted waveform, then take a finite-length DFT along every measurement axis. A point reflector at a continuous offset \(\Delta\) from a bin centre therefore shows up as the exact Dirichlet kernel</p>
+    <p>For a point reflector whose sampled response is a finite-length complex exponential, a rectangular-window discrete Fourier transform (DFT) yields the Dirichlet point-spread function. In bin units, the response at offset \(\Delta\) is</p>
     <div class="eq">\[ \kappa_N(\Delta) = e^{-j\pi\frac{N-1}{N}\Delta}\,\frac{\sin(\pi\Delta)}{\sin(\pi\Delta/N)}, \]</div>
-    <p>where \(N\) is the number of samples the hardware integrates before the transform. The kernel is complex, oscillates, and repeats. Its sidelobes hold about 10% of the energy, and both their level and their phase are fixed by \(N\), so nothing needs fitting. A Gaussian splat decays monotonically and never crosses zero, so it reproduces neither the sidelobes nor the phase that decides how nearby reflectors interfere.</p>
-    <p class="howto">Slide the reflector between two bins. At an integer offset, every recorded sample except the peak lands on a null and the sidelobes vanish from the data. At a half-bin offset they all appear. Dots are the values the sensor records, coloured by phase; the steady colour ramp is the kernel's linear phase law.</p>
+    <p>where \(N\) is the DFT window length and \(\Delta\) is the difference between the evaluation coordinate and the continuous reflector center. The response is complex-valued, oscillatory, and periodic. For a rectangular window, approximately 10% of the continuous spectral energy lies outside the main lobe. The sidelobe ratio and phase law are determined by \(N\) and require no fitting. A Gaussian envelope has no zero crossings and does not reproduce the Dirichlet sidelobe structure or its offset-dependent phase.</p>
+    <p class="howto">The offset control translates the reflector between adjacent DFT bins. At an integer-bin center, the non-peak samples coincide with kernel zeros. At a half-bin offset, the sampled response includes sidelobes. Dots indicate the sampled complex response, with color encoding phase.</p>
   </div>
 
   <div class="demo" id="demo-kernel">
@@ -212,9 +212,9 @@
     <div class="demo-stage">
       <canvas class="plot plot-kernel" role="img" aria-label="Kernel plot: Dirichlet kernel, matched Gaussian, and recorded bin samples."></canvas>
       <ul class="legend">
-        <li><span class="swatch sw-dir"></span>Dirichlet kernel</li>
+        <li><span class="swatch sw-dir"></span>Dirichlet kernel (Ours)</li>
         <li><span class="swatch sw-gau"></span>Gaussian with the same main lobe</li>
-        <li><span class="swatch sw-phase"></span>Recorded bins, coloured by phase</li>
+        <li><span class="swatch sw-phase"></span>Recorded bins, colored by phase</li>
       </ul>
     </div>
     <div class="demo-side">
@@ -227,7 +227,7 @@
         <input type="range" name="N" min="8" max="64" step="1" value="16">
       </label>
       <dl class="readout">
-        <div><dt>Recorded energy outside the main lobe, Dirichlet</dt><dd data-out="sidelobe">–</dd></div>
+        <div><dt>Recorded energy outside the main lobe, Dirichlet (Ours)</dt><dd data-out="sidelobe">–</dd></div>
         <div><dt>Same for the Gaussian</dt><dd data-out="gauss">–</dd></div>
         <div><dt>Brightest recorded sample</dt><dd data-out="peak">–</dd></div>
       </dl>
@@ -237,17 +237,17 @@
 
 <!-- ===================================================================== -->
 <section class="wrap block" aria-labelledby="interference">
-  <h2 id="interference">Reflectors interfere before the detector squares</h2>
+  <h2 id="interference">Coherent Compositing</h2>
   <div class="prose">
-    <p>Each surfel contributes one complex splat, and the renderer adds them: \(\hat Y(\mathbf f) = \sum_i \mathrm{splat}_i(\mathbf f)\), with observed power \(|\hat Y|^2\). There is no depth order and no opacity, so rendering is fully data-parallel. Because phasors add before the detector squares the result, reflectors a few cells apart reinforce or cancel each other, and their sidelobes form the cross-shaped lattice that a separable 2D DFT produces.</p>
-    <p class="howto">The hand on each circle shows its phase. Turn the phase of one reflector and watch the pattern between them change. Both panels use the same positions and complex amplitudes.</p>
+    <p>The renderer forms the complex spectral tensor by coherent addition, \(\hat Y(\mathbf f) = \sum_i \mathrm{splat}_i(\mathbf f)\). The corresponding power is \(|\hat Y|^2\). This additive compositing rule requires neither depth ordering nor opacity and permits parallel evaluation across surfels. Interference depends on the relative phases of the complex contributions. In the separable 2D model, the per-axis sidelobes produce a lattice in the spectral response.</p>
+    <p class="howto">The radial indicator on each reflector represents its phase. Adjusting a reflector phase changes the coherent interference pattern. Both panels use identical reflector positions and complex amplitudes.</p>
   </div>
 
   <div class="demo" id="demo-interference">
     <div class="demo-bar">
       <div class="bar-actions"><button type="button" class="icon-btn" data-action="reset" aria-label="Reset" data-tip="Reset"><svg aria-hidden="true"><use href="#i-reset"/></svg></button></div>
       <div class="tool">
-        <span class="tool-label" id="is-label">Colour scale</span>
+        <span class="tool-label" id="is-label">Color scale</span>
         <div class="seg" data-group="scale" role="group" aria-labelledby="is-label">
           <button type="button" value="lin" aria-pressed="true">Linear</button>
           <button type="button" value="db" aria-pressed="false">dB (40 dB range)</button>
@@ -268,7 +268,7 @@
             <canvas data-panel="dirichlet" class="heat"></canvas>
             <canvas class="panel-overlay" aria-label="Dirichlet splats; drag reflectors here." role="img"></canvas>
           </div>
-          <figcaption><span class="swatch sw-dir"></span>Dirichlet splats</figcaption>
+          <figcaption><span class="swatch sw-dir"></span>Dirichlet splats (Ours)</figcaption>
         </figure>
         <figure class="panel">
           <div class="panel-box">
@@ -292,9 +292,9 @@
 
 <!-- ===================================================================== -->
 <section class="wrap block" aria-labelledby="surfels">
-  <h2 id="surfels">Each splat is a surface element</h2>
+  <h2 id="surfels">Surfel-Aware Dirichlet Splat</h2>
   <div class="prose">
-    <p>We model the scene as planar surfels and render every surfel as a complex amplitude times a separable Dirichlet kernel. The amplitude comes from the surfel's physics; the kernel comes only from the sensor's FFT lengths.</p>
+    <p>We represent the scene as planar surfels. Each surfel contributes a separable Dirichlet kernel multiplied by a complex amplitude. The amplitude incorporates the surfel appearance factors, while the rectangular-window kernel is determined by the per-axis FFT lengths.</p>
   </div>
   <div class="eq eq-main">
     \[ \hat{Y}(\mathbf{f}) = \sum_{i=1}^{S} \alpha_i \cdot
@@ -307,8 +307,8 @@
     </div>
   </div>
   <div class="prose">
-    <p>Here \(\alpha_i\) is the complex reflectivity, \(A_i\) the disk area, \(V_i\) the bistatic foreshortening, \(F_i\) the Fresnel response of the surfel's material, and \(R_i^{-\gamma}\) free-space spreading. The centre \(\mu_{i,\ell}\) is the surfel's position and velocity projected onto measurement axis \(\ell\) (range, Doppler, or azimuth), playing the role of the projection Jacobian in 3DGS. Velocity therefore enters through the Doppler axis with no extra temporal layer.</p>
-    <p class="howto">Turn a surfel away from the antennas and its splat fades (\(V\)). Switch it to glass and the Fresnel factor drops to about &minus;0.2. Move it a millimetre and the round-trip phase rotates, because it changes by a full cycle every 1.25&nbsp;mm at 120&nbsp;GHz. Overlapping splats then flip between reinforcing and cancelling. The range&ndash;angle map is what a 16-element receive array reports after a range FFT and an angle FFT, drawn in the radar&rsquo;s fan view; rings mark where each surfel really is.</p>
+    <p>Here \(S\) is the number of surfels and \(L\) is the number of measurement axes. The quantities \(\alpha_i\), \(A_i\), \(V_i\), \(F_i\), and \(R_i^{-\gamma}\) denote complex reflectivity, disk area, bistatic foreshortening, Fresnel response, and free-space spreading, respectively. The exponent \(\gamma\) specifies the path-loss model. The Fourier center \(\mu_{i,\ell}\) maps the surfel position and velocity to axis \(\ell\), such as range, Doppler, or azimuth. The function \(d_{N_\ell}=\kappa_{N_\ell}/N_\ell\) is the unit-peak kernel. Velocity enters through the Doppler offset under the coherent-sensing assumptions stated in the paper, including constant radial velocity and negligible range walk.</p>
+    <p class="howto">This simulation illustrates the dependence of the complex response on surfel orientation, material, area, and propagation distance. Rotation changes the foreshortening factor \(V\). The glass preset uses a relative wave impedance of \(1/1.5\), giving a Fresnel coefficient of &minus;0.2 at normal incidence. At 120&nbsp;GHz, a 1.25&nbsp;mm change in monostatic range produces a full round-trip phase cycle. The range&ndash;angle map simulates a 16-element receive array using range-domain responses and angular beamforming. Rings indicate the true surfel positions.</p>
   </div>
 
   <div class="demo" id="demo-surfel">
@@ -354,7 +354,7 @@
     <div class="demo-stage">
       <figure class="panel">
         <canvas data-panel="ra" class="plot plot-fan" role="img" aria-label="Fan-shaped range-angle radar image of the three surfels, with rings at their true positions."></canvas>
-        <figcaption>What the radar sees: range&ndash;angle map</figcaption>
+        <figcaption>Simulated range&ndash;angle map</figcaption>
       </figure>
       <div class="surfel-profile">
         <canvas data-panel="profile" class="plot plot-profile" role="img" aria-label="Range profile: each surfel's splat and their coherent sum."></canvas>
@@ -367,13 +367,13 @@
   </div>
 
   <div class="prose">
-    <p>A Dirichlet surfel needs 13 parameters; a 3D Gaussian needs 58. Most of the saving is appearance: a coherent sensor needs one complex amplitude, while a camera needs a directional radiance field.</p>
+    <p>A Dirichlet surfel has 13 degrees of freedom, including velocity and complex material impedance, compared with 58 for the degree-3 spherical-harmonic 3DGS representation. The appearance parameterization contributes much of this difference: Dirichlet Splatting uses a scalar complex reflectivity and material response rather than directional RGB spherical-harmonic coefficients.</p>
   </div>
   <div class="table-wrap">
     <table class="params">
-      <caption>Degrees of freedom per primitive. The complex amplitude is solved in closed form during optimization.</caption>
+      <caption>Degrees of freedom per primitive. Complex amplitudes are solved in closed form for fixed centers during optimization.</caption>
       <thead>
-        <tr><th scope="col">Attribute</th><th scope="col">3D Gaussian splat</th><th scope="col" class="num">#</th><th scope="col">Dirichlet surfel (ours)</th><th scope="col" class="num">#</th></tr>
+        <tr><th scope="col">Attribute</th><th scope="col">3D Gaussian splat</th><th scope="col" class="num">#</th><th scope="col">Dirichlet surfel (Ours)</th><th scope="col" class="num">#</th></tr>
       </thead>
       <tbody>
         <tr><th scope="row">Position</th><td>\(\mathbf p\in\mathbb R^3\)</td><td class="num">3</td><td>\(\mathbf p\in\mathbb R^3\)</td><td class="num">3</td></tr>
@@ -393,10 +393,10 @@
 
 <!-- ===================================================================== -->
 <section class="wrap block" aria-labelledby="exact">
-  <h2 id="exact">The kernel is exact; Gaussians only approximate it</h2>
+  <h2 id="exact">Forward Model Fidelity</h2>
   <div class="prose">
-    <p>A handful of Dirichlet splats reproduce a coherent scene exactly, sidelobes included. Gaussians must spend many splats to approximate the same profile, and adding more improves the envelope only slowly. In the paper, three Dirichlet primitives reach the numerical floor (&minus;120&nbsp;dB normalized error) on a three-reflector range profile, while 96 Gaussians, 32&times; more, reach only &minus;30.1&nbsp;dB. The gap is in the representation, not the optimizer.</p>
-    <p class="howto">Each new ground truth places 2 to 4 random complex reflectors. Switch between a 1D range profile and a 2D spectrum, pick a Gaussian budget, and the page fits it live, minimizing the same magnitude error it reports: each Gaussian has a free centre and width (Levenberg&ndash;Marquardt) and a signed weight solved by least squares, so splats can also cancel. The Dirichlet fit uses one splat per reflector, placed by the residual certificate. Dots under each plot are splat centres.</p>
+    <p>On the synthetic three-reflector range profile in the paper, three Dirichlet primitives reproduce the reference response to the numerical floor (&minus;120&nbsp;dB magnitude normalized mean squared error, NMSE). A fixed-width Gaussian representation with 96 primitives reaches &minus;30.1&nbsp;dB, using 32&times; as many primitives. This experiment characterizes the representation mismatch between a Gaussian envelope and the finite-window DFT response.</p>
+    <p class="howto">The browser demonstration generates scenes with two to four complex reflectors and supports 1D range profiles and 2D spectra. The Gaussian primitive count is adjustable. Gaussian centers and widths are optimized by Levenberg&ndash;Marquardt, with real signed weights determined by least squares. The Dirichlet fit uses one primitive per reflector, with residual-certificate placement and local refinement. Both fits are evaluated by magnitude NMSE. This free-width Gaussian demonstration differs from the fixed-width comparison reported above. Dots indicate primitive centers.</p>
   </div>
 
   <div class="demo" id="demo-fit">
@@ -420,7 +420,7 @@
         </div>
       </div>
       <div class="tool">
-        <span class="tool-label" id="fs-label">Colour scale</span>
+        <span class="tool-label" id="fs-label">Color scale</span>
         <div class="seg" data-group="scale" role="group" aria-labelledby="fs-label">
           <button type="button" value="lin" aria-pressed="true">Linear</button>
           <button type="button" value="db" aria-pressed="false">dB</button>
@@ -433,7 +433,7 @@
         <canvas data-panel="gaussian" class="plot plot-fit" role="img" aria-label="Ground-truth range profile in dB with the Gaussian fit."></canvas>
         <ul class="legend">
           <li><span class="swatch sw-gt"></span>Ground truth</li>
-          <li><span class="swatch sw-dir"></span>Dirichlet fit</li>
+          <li><span class="swatch sw-dir"></span>Dirichlet fit (Ours)</li>
           <li><span class="swatch sw-gau sw-solid"></span>Gaussian fit</li>
         </ul>
       </div>
@@ -448,7 +448,7 @@
           </figure>
           <figure class="panel">
             <div class="panel-box"><canvas data-panel="dirichlet" class="heat"></canvas></div>
-            <figcaption><span class="swatch sw-dir"></span><span data-out="dtitle">Dirichlet</span></figcaption>
+            <figcaption><span class="swatch sw-dir"></span><span data-out="dtitle">Dirichlet (Ours)</span></figcaption>
           </figure>
           <figure class="panel">
             <div class="panel-box"><canvas data-panel="gaussian" class="heat"></canvas></div>
@@ -460,32 +460,32 @@
     </div>
     <div class="demo-side">
       <dl class="readout">
-        <div><dt>Dirichlet magnitude NMSE</dt><dd data-out="dnmse">–</dd></div>
-        <div><dt>Dirichlet parameters</dt><dd data-out="dparams">–</dd></div>
-        <div><dt>Gaussian magnitude NMSE</dt><dd data-out="gnmse">–</dd></div>
+        <div><dt>Dirichlet (Ours) NMSE</dt><dd data-out="dnmse">–</dd></div>
+        <div><dt>Dirichlet (Ours) parameters</dt><dd data-out="dparams">–</dd></div>
+        <div><dt>Gaussian NMSE</dt><dd data-out="gnmse">–</dd></div>
         <div><dt>Gaussian parameters</dt><dd data-out="gparams">–</dd></div>
       </dl>
     </div>
   </div>
 
   <div class="prose">
-    <p>The same kernel extends to the Doppler axis. On a moving three-reflector scene, the joint position&ndash;velocity model matches the FFT oracle to &minus;120&nbsp;dB and recovers every velocity on a 0.05&nbsp;m/s grid.</p>
+    <p>The same per-axis kernel applies to Doppler measurements. The joint position&ndash;velocity model represents radial velocity as a continuous Doppler-bin offset under the coherent-sensing assumptions stated in the paper.</p>
   </div>
 </section>
 
 <!-- ===================================================================== -->
 <section class="wrap block" aria-labelledby="dsfw">
-  <h2 id="dsfw">Optimizing on an oscillating landscape</h2>
+  <h2 id="dsfw">Dirichlet Sliding Frank&ndash;Wolfe</h2>
   <div class="prose">
-    <p>The oscillation that makes the kernel faithful also makes the loss rugged. A rectangular window gives &minus;13&nbsp;dB sidelobes, and each sidelobe peak is a gradient null. A splat that starts one main-lobe width from the truth descends into the nearest sidelobe and stays there.</p>
-    <p>Dirichlet Sliding Frank&ndash;Wolfe (DSFW) handles three problems at once. Sidelobe minima trap local search. Amplitude shrinkage lets a misplaced splat lower the loss by fading instead of moving. Splats within a kernel width are coupled, and diagonal preconditioners like Adam cannot make the joint move that untangles them. Each DSFW outer step does four things, in order:</p>
+    <p>The Dirichlet sidelobes induce local minima in the reconstruction objective. A rectangular window has a first sidelobe level of approximately &minus;13&nbsp;dB. In the paper's cold-start benchmarks, local gradient optimization can converge to sidelobe minima rather than the true reflector centers.</p>
+    <p>Dirichlet Sliding Frank&ndash;Wolfe (DSFW) addresses three optimization difficulties: sidelobe minima, amplitude shrinkage, and inter-splat coupling. Joint amplitude and position optimization can reduce the residual by decreasing the amplitude of a misplaced splat. Coherent interference also couples nearby center variables, introducing off-diagonal curvature that diagonal preconditioners do not represent. DSFW combines the following operations:</p>
     <ol class="steps">
-      <li><strong>Variable projection.</strong> The model is linear in the amplitudes, so we solve them in closed form, \(\mathbf b^\star = (G + \lambda I)^{-1} q\), and optimize centres alone. Amplitude shrinkage disappears as a degree of freedom.</li>
-      <li><strong>Residual certificate.</strong> We score every candidate location by \(s(\mathbf x) = |\langle a(\mathbf x),\, \mathbf y - A\mathbf b^\star\rangle| / \|a(\mathbf x)\|\), which is how much a new splat there would reduce the residual. It is global, so sidelobe minima do not stop it.</li>
-      <li><strong>Hard replacement.</strong> The splat with the lowest utility, a mix of its relative amplitude and how much of its footprint the other splats cannot already explain, moves to the certificate's peak. The budget stays fixed, because aperture and bandwidth bound how many scatterers can be resolved.</li>
-      <li><strong>Sliding.</strong> A Levenberg&ndash;Marquardt step on all centres resolves the coupling between neighbouring splats.</li>
+      <li><strong>Variable projection.</strong> The forward model is linear in the complex amplitudes. For fixed centers, we solve \(\mathbf b^\star = (G + \lambda I)^{-1} q\) and optimize the reduced objective over centers. Here \(G\) is the normalized dictionary Gram matrix, \(q\) is the normalized dictionary correlation with the measurements, and \(\lambda\) is the ridge weight. This elimination removes amplitudes from the nonlinear search.</li>
+      <li><strong>Residual certificate.</strong> We evaluate \(s(\mathbf x) = |\langle a(\mathbf x),\, \mathbf y - A\mathbf b^\star\rangle| / \|a(\mathbf x)\|\) across the candidate grid. Here \(a(\mathbf x)\) is the spectral response of a candidate primitive, \(A\) is the current response dictionary, and \(\mathbf y\) contains the measurements. The normalized residual correlation identifies candidate locations beyond the current local basin.</li>
+      <li><strong>Hard replacement.</strong> The lowest-utility primitive is replaced at the certificate maximizer. Utility combines relative amplitude with a measure of the contribution not represented by neighboring primitives. Replacement preserves the primitive budget and limits support growth into sidelobes and noise.</li>
+      <li><strong>Sliding.</strong> Optional Levenberg&ndash;Marquardt refinement updates the centers jointly. The paper also applies periodic coupled low-resolution corrections, accepted when the full-resolution loss decreases. DSFW does not carry a general convergence guarantee.</li>
     </ol>
-    <p class="howto">Both optimizers start from the same random centres, with two more splats than reflectors. A reflector counts as found when a splat lands within 0.1 bin of it. Drag any splat, even mid-run, and watch each method recover; the <em>Certificate</em> view shows where DSFW will place its next splat.</p>
+    <p class="howto">The browser comparison initializes both optimizers with the same random centers and a primitive budget exceeding the reflector count by two. A reflector is counted as recovered when a primitive lies within 0.1 bin of its position. Primitive positions can be adjusted during optimization to compare subsequent updates. The <em>Certificate</em> view displays the candidate-location scores used by DSFW. These simplified browser implementations illustrate the optimization mechanisms.</p>
   </div>
 
   <div class="demo" id="demo-opt">
@@ -537,7 +537,7 @@
               <canvas data-panel="dsfw" class="heat"></canvas>
               <canvas data-panel="dsfw" class="panel-overlay" role="img" aria-label="DSFW fit or certificate. Drag splats to move them."></canvas>
             </div>
-            <figcaption><span class="swatch sw-dir"></span><span data-out="dsfwTitle">DSFW</span></figcaption>
+            <figcaption><span class="swatch sw-dir"></span><span data-out="dsfwTitle">DSFW (Ours)</span></figcaption>
           </figure>
         </div>
       </div>
@@ -545,11 +545,11 @@
         <canvas data-panel="loss" class="plot plot-loss" role="img" aria-label="Loss curves of both optimizers on a log scale."></canvas>
         <ul class="legend legend-tight">
           <li><span class="swatch sw-gau sw-solid"></span>AdamW, 800 steps</li>
-          <li><span class="swatch sw-dir"></span>DSFW, 40 outer steps</li>
+          <li><span class="swatch sw-dir"></span>DSFW (Ours), 40 outer steps</li>
         </ul>
         <dl class="readout">
           <div><dt>AdamW</dt><dd data-out="adam">–</dd></div>
-          <div><dt>DSFW</dt><dd data-out="dsfw">–</dd></div>
+          <div><dt>DSFW (Ours)</dt><dd data-out="dsfw">–</dd></div>
         </dl>
       </div>
     </div>
@@ -563,11 +563,11 @@
         <canvas data-panel="loss" class="plot plot-loss" role="img" aria-label="Loss curves of both optimizers on a log scale."></canvas>
         <ul class="legend legend-tight">
           <li><span class="swatch sw-gau sw-solid"></span>AdamW, 900 steps</li>
-          <li><span class="swatch sw-dir"></span>DSFW, 24 outer steps</li>
+          <li><span class="swatch sw-dir"></span>DSFW (Ours), 24 outer steps</li>
         </ul>
         <dl class="readout">
           <div><dt>AdamW</dt><dd data-out="adam">–</dd></div>
-          <div><dt>DSFW</dt><dd data-out="dsfw">–</dd></div>
+          <div><dt>DSFW (Ours)</dt><dd data-out="dsfw">–</dd></div>
         </dl>
       </div>
     </div>
@@ -578,7 +578,7 @@
 <section class="wrap block" aria-labelledby="results">
   <h2 id="results">Results</h2>
 
-  <h3>3D reconstruction</h3>
+  <h3>3D Reconstruction</h3>
   <div class="split">
     <div class="compare" id="bunny-compare">
       <div class="seg seg-views" role="group" aria-label="View direction">
@@ -597,25 +597,48 @@
       </div>
     </div>
     <div class="prose">
-      <p>One global surfel set is fitted jointly to the raw complex range profiles of five apertures within 25&deg; of the front axis: a 60&nbsp;mm bunny, 120&nbsp;GHz carrier, 15&nbsp;GHz bandwidth, about 1.4&nbsp;mm resolution. The foreshortening factor \(V_i\) supplies per-view visibility, so multi-view fitting needs no separate visibility solver. Colour encodes depth along each view axis.</p>
-      <p>At a matched point budget, our median surface distance is 1.51&nbsp;mm against 1.92&nbsp;mm for back-projection, with recoverable recall@2mm of 0.750 against 0.530.</p>
-      <p class="howto">Drag across the image to compare with the ground truth.</p>
+      <p>We fit a single surfel set jointly to the raw complex range profiles of five views of a synthetic Stanford bunny. The foreshortening factor \(V_i\) provides per-view attenuation, allowing joint fitting without a separate visibility solver in this model. Color encodes depth along each viewing axis.</p>
+      <p class="howto">The comparison slider displays the reconstructed and ground-truth depth maps for the selected view.</p>
     </div>
   </div>
 
-  <h3>Real sub-terahertz measurements</h3>
+  <h3>Real Sub-THz Measurements</h3>
   <div class="prose">
-    <p>We scan three metal letters with a custom 120&nbsp;GHz software-defined radio. ROI power is a projection, not an inversion, and breaks each letter into fragments. Back-projection spreads diffraction sidelobes across the frame. A Gaussian fit gives compact but shapeless blobs. Our fit keeps the three letters separate while reproducing the measured finite-window sidelobes.</p>
+    <p>We evaluate the method on three metal-letter scans acquired with a custom 120&nbsp;GHz software-defined radio. The reconstruction preserves the separated letter structures while reproducing the measured finite-window sidelobes.</p>
   </div>
-  <figure class="fig fig-wide">
-    <img src="static/images/thz_layout.jpg" width="2400" height="469" loading="lazy"
-         alt="Left: photographs of the sub-terahertz transceiver and the hanging metal letters T, H, Z. Right: four reconstructions of the letters from the same raw scan: ROI power, back projection, Gaussian, and ours.">
-    <ol class="thz-keys">
-      <li>Setup and target</li>
-      <li>ROI power (top), Gaussian fit (bottom)</li>
-      <li>Back-projection (top), ours (bottom)</li>
-    </ol>
-  </figure>
+  <div class="thz-row">
+    <figure class="fig" style="flex: 2.64">
+      <div class="annot">
+        <img src="static/images/thz_setup.jpg" width="1400" height="530" loading="lazy"
+             alt="Photographs of the sub-terahertz transceiver and the metal letters T, H, Z hanging in front of it.">
+        <!-- Overlay from the paper's TikZ figure, in crop pixels of the 1469 x 556 source. -->
+        <svg viewBox="0 0 1469 556" preserveAspectRatio="none" aria-hidden="true">
+          <defs>
+            <marker id="thz-arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="#00d9ff"/></marker>
+          </defs>
+          <g fill="none" vector-effect="non-scaling-stroke">
+            <rect class="halo" x="88" y="248" width="120" height="118"/>
+            <rect class="box" x="88" y="248" width="120" height="118"/>
+            <rect class="halo" x="248" y="234" width="90" height="92"/>
+            <rect class="box" x="248" y="234" width="90" height="92"/>
+            <rect class="halo" x="1258" y="208" width="80" height="116"/>
+            <rect class="box" x="1258" y="208" width="80" height="116"/>
+            <path class="callout" d="M1258 208L1156 146" marker-end="url(#thz-arrow)"/>
+            <rect class="halo" x="773" y="18" width="380" height="126"/>
+            <rect class="inset" x="773" y="18" width="380" height="126"/>
+          </g>
+          <g class="tag"><rect x="88" y="205" width="62" height="38"/><text x="96" y="236">Tx</text></g>
+          <g class="tag"><rect x="248" y="191" width="62" height="38"/><text x="256" y="222">Rx</text></g>
+        </svg>
+      </div>
+      <figcaption>Setup and target</figcaption>
+    </figure>
+    <figure class="fig" style="flex: 2.97">
+      <img src="static/images/thz_ours.jpg" width="1400" height="471" loading="lazy"
+           alt="Our reconstruction of the letters T, H, and Z from the raw scan.">
+      <figcaption>Our reconstruction</figcaption>
+    </figure>
+  </div>
   <div class="split split-even">
     <figure class="fig pair-fig">
       <img src="static/images/printed_bunny_setup.jpg" width="1400" height="1049" loading="lazy"
@@ -624,7 +647,7 @@
            alt="Our reconstruction of the printed bunny, showing its outline surrounded by diffraction sidelobes.">
     </figure>
     <div class="prose">
-      <p>For a curved real object, we 3D-print the bunny at 120&nbsp;mm, coat it with conductive ink, and scan it over a 121&times;121 aperture. A dense field of 4,991 Dirichlet atoms with the same kernel and loss fits the stacked raw profiles. 93% of the recovered support lies in one connected component, against 34 components for range-gated energy and 6 for back-projection.</p>
+      <p>We also evaluate the method on a 3D-printed Stanford bunny coated with conductive ink and scanned with the same transceiver. A dense field of Dirichlet atoms with fixed lattice centers is fitted to the raw complex range profiles using the same kernel, forward model, and loss. The displayed reconstruction shows the recovered support.</p>
     </div>
   </div>
 
@@ -646,13 +669,6 @@
   month     = dec,
   doi       = {10.1145/3842559}
 }</code></pre>
-  </div>
-</section>
-
-<section class="wrap block" aria-labelledby="ack">
-  <h2 id="ack">Acknowledgments</h2>
-  <div class="prose">
-    <p>We appreciate the insightful comments and feedback from the anonymous reviewers and shepherd. This work is partially supported by the NSF grants 2238839, 2341952, 2403124, and 2408393, and gifts from Adobe, Google, Activision, and Meshy.</p>
   </div>
 </section>
 
