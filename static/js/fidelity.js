@@ -11,6 +11,13 @@
 
 const Fidelity = (() => {
   const tmp = [0, 0], der = [0, 0];
+  // Ground-truth edits share these limits in 1D and 2D.
+  const MIN_REFLECTORS = 1, MAX_REFLECTORS = 6;
+  // Amplitude for a reflector the reader adds: fixed magnitude, random phase.
+  function newAmplitude() {
+    const ph = Math.random() * 2 * Math.PI;
+    return [0.7 * Math.cos(ph), 0.7 * Math.sin(ph)];
+  }
 
   // ---------------------------------------------------------------------
   // Dirichlet fit: complex VarPro + LM over atom parameters.
@@ -20,17 +27,18 @@ const Fidelity = (() => {
   function makeDirichletFitter({ S, P, atom, certificate, clamp }) {
     const lambda = 1e-9;
 
-    function build(C) {
+    // Columns A (S x K) and, if wantD, their parameter derivatives D.
+    function build(C, wantD = true) {
       const K = C.length;
       const A = new Float64Array(S * K * 2);
-      const D = new Float64Array(S * K * P * 2);
+      const D = wantD ? new Float64Array(S * K * P * 2) : null;
       const col = new Float64Array(S * 2);
       const dcols = Array.from({ length: P }, () => new Float64Array(S * 2));
       for (let j = 0; j < K; j++) {
         atom(C[j], col, dcols);
         for (let s = 0; s < S; s++) {
           A[(s * K + j) * 2] = col[s * 2]; A[(s * K + j) * 2 + 1] = col[s * 2 + 1];
-          for (let p = 0; p < P; p++) {
+          if (D) for (let p = 0; p < P; p++) {
             D[((s * K + j) * P + p) * 2] = dcols[p][s * 2];
             D[((s * K + j) * P + p) * 2 + 1] = dcols[p][s * 2 + 1];
           }
@@ -83,7 +91,7 @@ const Fidelity = (() => {
         for (let s = 0; s < S * 2; s++) { e[s] = -y[s]; L += y[s] * y[s]; }
         return { C, b: new Float64Array(0), e, L };
       }
-      const { A } = build(C);
+      const { A } = build(C, false);
       return { C, ...varpro(A, C.length, y) };
     }
 
@@ -140,7 +148,7 @@ const Fidelity = (() => {
       return slide(cur.C, y, 80);
     }
 
-    return { fit, evaluate };
+    return { fit, evaluate, slide, atom };
   }
 
   // ---------------------------------------------------------------------
@@ -254,7 +262,7 @@ const Fidelity = (() => {
     return 10 * Math.log10(Math.max(e / n, 1e-16));
   }
 
-  return { makeDirichletFitter, makeGaussianFitter, nmseDb, fmtDb };
+  return { makeDirichletFitter, makeGaussianFitter, nmseDb, fmtDb, MIN_REFLECTORS, MAX_REFLECTORS, newAmplitude };
 })();
 
 // =========================================================================
@@ -275,6 +283,8 @@ function makeFit1D(stage, out) {
   const SIG_MIN = 0.12, SIG_MAX = N / 4;
   const wrap = (d) => d - N * Math.round(d / N);
 
+  // A scene keeps raw amplitudes; buildScene() renormalizes to unit peak and
+  // re-renders, so dragging a reflector only needs C changed and a rebuild.
   function newScene() {
     const rand = DS.rng(seed);
     const K = 2 + Math.floor(rand() * 3);   // 2-4 reflectors
@@ -283,23 +293,28 @@ function makeFit1D(stage, out) {
       const c = 16 + rand() * (N - 32);
       if (C.every((v) => Math.abs(v - c) > 1.6)) C.push(c);
     }
-    const b = new Float64Array(K * 2);
+    const braw = new Float64Array(K * 2);
     for (let i = 0; i < K; i++) {
       const a = 0.45 + 0.55 * rand(), ph = rand() * 2 * Math.PI;
-      b[i * 2] = a * Math.cos(ph); b[i * 2 + 1] = a * Math.sin(ph);
+      braw[i * 2] = a * Math.cos(ph); braw[i * 2 + 1] = a * Math.sin(ph);
     }
-    // Continuous profile, normalized to unit peak.
+    scene = { K, C, braw };
+    buildScene();
+  }
+  function buildScene() {
+    const { C, braw } = scene;
+    scene.K = C.length;
     const prof = X.map((f) => {
       let r = 0, im = 0;
       C.forEach((c, j) => {
         DS.dirichlet(f - c, N, tmp1);
-        r += b[j * 2] * tmp1[0] - b[j * 2 + 1] * tmp1[1];
-        im += b[j * 2] * tmp1[1] + b[j * 2 + 1] * tmp1[0];
+        r += braw[j * 2] * tmp1[0] - braw[j * 2 + 1] * tmp1[1];
+        im += braw[j * 2] * tmp1[1] + braw[j * 2 + 1] * tmp1[0];
       });
       return Math.hypot(r, im);
     });
     const peak = Math.max(...prof);
-    for (let i = 0; i < b.length; i++) b[i] /= peak;
+    const b = braw.map((v) => v / peak);
     // Sensor data: the integer bins.
     const y = new Float64Array(N * 2);
     for (let k = 0; k < N; k++) {
@@ -309,7 +324,7 @@ function makeFit1D(stage, out) {
         y[k * 2 + 1] += b[j * 2] * tmp1[1] + b[j * 2 + 1] * tmp1[0];
       });
     }
-    scene = { K, C, b, y, target: prof.map((v) => v / peak) };
+    Object.assign(scene, { b, y, target: prof.map((v) => v / peak) });
   }
   const tmp1 = [0, 0], tmp2 = [0, 0];
 
@@ -411,16 +426,22 @@ function makeFit1D(stage, out) {
       X.forEach((f, i) => { const yy = yOf(profile[i]); if (i === 0) ctx.moveTo(xOf(f), yy); else ctx.lineTo(xOf(f), yy); });
       ctx.strokeStyle = color; ctx.lineWidth = 1.7; ctx.setLineDash(dashed ? [5, 3] : []); ctx.stroke(); ctx.setLineDash([]);
     }
+    // Ground-truth reflectors: grey handles along the top edge (draggable).
+    ctx.fillStyle = muted;
+    for (const c of scene.C) {
+      const x = xOf(c);
+      ctx.beginPath(); ctx.moveTo(x - 5, T - 9); ctx.lineTo(x + 5, T - 9); ctx.lineTo(x, T - 1); ctx.closePath(); ctx.fill();
+    }
     // Splat centres along the bottom edge.
     ctx.fillStyle = color; ctx.globalAlpha = 0.75;
     for (const c of centers) { ctx.beginPath(); ctx.arc(xOf(c), T + ph + 7, 3, 0, 2 * Math.PI); ctx.fill(); }
     ctx.globalAlpha = 1;
     // Labels.
     ctx.textBaseline = "top"; ctx.font = "600 12px 'Hanken Grotesk', system-ui, sans-serif";
-    ctx.textAlign = "left"; ctx.fillStyle = ink; ctx.fillText(title, L, 4);
+    ctx.textAlign = "left"; ctx.fillStyle = ink; ctx.fillText(title, L, 2);
     if (nmse !== null) {
       ctx.textAlign = "right"; ctx.fillStyle = color;
-      ctx.fillText(`NMSE ${Fidelity.fmtDb(nmse)}`, L + pw, 4);
+      ctx.fillText(`NMSE ${Fidelity.fmtDb(nmse)}`, L + pw, 2);
     }
   }
 
@@ -443,7 +464,6 @@ function makeFit1D(stage, out) {
     gfit = gFitter();
     gstate = gfit.init(gaussInit());
     iter = 0;
-    out.status.textContent = "Fitting the Gaussians…";
     draw();
     const MAX_IT = 150;
     const tick = () => {
@@ -452,20 +472,53 @@ function makeFit1D(stage, out) {
         gstate = gfit.step(gstate); iter++;
       }
       draw();
-      if (iter < MAX_IT && !gstate.stalled) {
-        out.status.textContent = `Fitting the Gaussians, iteration ${iter}`;
-        raf = requestAnimationFrame(tick);
-      } else {
-        out.status.textContent = `Done after ${iter} Levenberg–Marquardt iterations.`;
-      }
+      raf = iter < MAX_IT && !gstate.stalled ? requestAnimationFrame(tick) : null;
     };
     raf = requestAnimationFrame(tick);
+  }
+
+  // Shared gestures (DS.pointEditor) on both panels: a reflector is grabbed
+  // by its x position anywhere in the panel; empty space adds one;
+  // right-click or long-press deletes. Fits clear during a drag and rerun
+  // when it ends.
+  const PLOT_L = 40, PLOT_R = 10;   // must match drawPanel's margins
+  const binAt = (cv, x) => {
+    const w = cv.getBoundingClientRect().width - PLOT_L - PLOT_R;
+    return { f: Math.min(N - 2, Math.max(2, ((x - PLOT_L) / w) * N)), perBin: w / N };
+  };
+  const edited = () => { cancelAnimationFrame(raf); raf = null; buildScene(); dfit = null; gstate = null; draw(); };
+  for (const cv of [cvD, cvG]) {
+    DS.pointEditor(cv, {
+      hit: (x) => {
+        const { f, perBin } = binAt(cv, x);
+        let best = null, bd = 10 / perBin;
+        scene.C.forEach((c, i) => { const d = Math.abs(c - f); if (d < bd) { bd = d; best = i; } });
+        return best;
+      },
+      add: (x) => {
+        if (scene.C.length >= Fidelity.MAX_REFLECTORS) return null;
+        scene.C.push(binAt(cv, x).f);
+        scene.braw = Float64Array.from([...scene.braw, ...Fidelity.newAmplitude()]);
+        edited();
+        return scene.C.length - 1;
+      },
+      move: (i, x) => { scene.C[i] = binAt(cv, x).f; edited(); },
+      end: () => startFit(),
+      remove: (i) => {
+        if (scene.C.length <= Fidelity.MIN_REFLECTORS) return;
+        scene.C.splice(i, 1);
+        scene.braw = Float64Array.from([...scene.braw].filter((_, k) => k >> 1 !== i));
+        buildScene();
+        startFit();
+      },
+    });
   }
 
   newScene();
   return {
     start(m) { M = m; startFit(); },
-    stop() { cancelAnimationFrame(raf); },
+    stop() { cancelAnimationFrame(raf); raf = null; },
+    isRunning() { return raf !== null; },
     reseed() { seed = (seed * 48271) % 2147483647; newScene(); },
     redraw() { if (scene) draw(); },
   };
@@ -485,6 +538,7 @@ function makeFit2D(stage, out) {
     dir: stage.querySelector('[data-out="dtitle"]'),
     gau: stage.querySelector('[data-out="gtitle"]'),
   };
+  const gtOverlay = stage.querySelector('canvas.panel-overlay[data-panel="gt"]');
 
   const N = 16;            // bins per axis
   const OS = 3;            // fitting samples per bin per axis (48 x 48)
@@ -511,6 +565,7 @@ function makeFit2D(stage, out) {
     return Math.hypot(r, im);
   }
 
+  // Raw amplitudes plus buildScene(), as in the 1D view, so drags rebuild.
   function newScene() {
     const rand = DS.rng(seed);
     const K = 2 + Math.floor(rand() * 3);
@@ -519,14 +574,20 @@ function makeFit2D(stage, out) {
       const p = [5 + rand() * 6, 5 + rand() * 6];
       if (C.every((q) => Math.hypot(q[0] - p[0], q[1] - p[1]) > 1.5)) C.push(p);
     }
-    const b = new Float64Array(K * 2);
+    const braw = new Float64Array(K * 2);
     for (let i = 0; i < K; i++) {
       const a = 0.45 + 0.55 * rand(), ph = rand() * 2 * Math.PI;
-      b[i * 2] = a * Math.cos(ph); b[i * 2 + 1] = a * Math.sin(ph);
+      braw[i * 2] = a * Math.cos(ph); braw[i * 2 + 1] = a * Math.sin(ph);
     }
+    scene = { K, C, braw };
+    buildScene();
+  }
+  function buildScene() {
+    const { C, braw } = scene;
+    scene.K = C.length;
     let peak = 0;
-    for (const f of X) peak = Math.max(peak, complexAt(C, b, f));
-    for (let i = 0; i < b.length; i++) b[i] /= peak;
+    for (const f of X) peak = Math.max(peak, complexAt(C, braw, f));
+    const b = braw.map((v) => v / peak);
     const y = new Float64Array(N * N * 2);
     for (let l = 0; l < N; l++) for (let k = 0; k < N; k++) {
       let r = 0, im = 0;
@@ -537,11 +598,11 @@ function makeFit2D(stage, out) {
       });
       y[(l * N + k) * 2] = r; y[(l * N + k) * 2 + 1] = im;
     }
-    scene = {
-      K, C, b, y,
+    Object.assign(scene, {
+      b, y,
       target: X.map((f) => complexAt(C, b, f)),
       display: XD.map((f) => complexAt(C, b, f)),
-    };
+    });
   }
 
   const dirFitter = Fidelity.makeDirichletFitter({
@@ -647,8 +708,21 @@ function makeFit2D(stage, out) {
     ctx.putImageData(img, 0, 0);
   }
 
+  const blank = new Float64Array(RES * RES);
+  function drawMarkers() {
+    const { ctx, w, h } = DS.fitCanvas(gtOverlay);
+    ctx.clearRect(0, 0, w, h);
+    ctx.strokeStyle = "rgba(255,255,255,0.9)"; ctx.lineWidth = 1.4;
+    for (const p of scene.C) {
+      ctx.beginPath(); ctx.arc((p[0] / N) * w, h - (p[1] / N) * h, 6, 0, 2 * Math.PI); ctx.stroke();
+    }
+  }
   function draw() {
     paint(canv.gt, scene.display);
+    drawMarkers();
+    // While a reflector is dragged the fits are stale: show empty panels.
+    if (!dfit) { paint(canv.dir, blank); out.dnmse.textContent = "–"; }
+    if (!gstate) { paint(canv.gau, blank); out.gnmse.textContent = "–"; }
     if (dfit) {
       const prof = XD.map((f) => complexAt(dfit.C, dfit.b, f));
       paint(canv.dir, prof);
@@ -679,17 +753,54 @@ function makeFit2D(stage, out) {
       const t0 = performance.now();
       while (iter < MAX_IT && !gstate.stalled && performance.now() - t0 < 14) { gstate = gfit.step(gstate); iter++; }
       draw();
-      if (iter < MAX_IT && !gstate.stalled) {
-        out.status.textContent = `Fitting the Gaussians, iteration ${iter}`;
-        raf = requestAnimationFrame(tick);
-      } else out.status.textContent = `Done after ${iter} Levenberg–Marquardt iterations.`;
+      raf = iter < MAX_IT && !gstate.stalled ? requestAnimationFrame(tick) : null;
     };
     raf = requestAnimationFrame(tick);
   }
+  // Shared gestures (DS.pointEditor) on the ground-truth panel. Rebuilding
+  // re-renders ~18k samples per reflector, so drags rebuild once per frame.
+  let pending = false;
+  const toBins = (x, y) => {
+    const w = gtOverlay.getBoundingClientRect().width;
+    return [Math.min(N - 1, Math.max(1, (x / w) * N)), Math.min(N - 1, Math.max(1, (1 - y / w) * N)), w / N];
+  };
+  const edited = () => {
+    cancelAnimationFrame(raf); raf = null;
+    if (pending) return;
+    pending = true;
+    requestAnimationFrame(() => { pending = false; buildScene(); dfit = null; gstate = null; draw(); });
+  };
+  const refit = () => requestAnimationFrame(() => { buildScene(); startFit(); });
+  DS.pointEditor(gtOverlay, {
+    hit: (x, y) => {
+      const [bx, by, perBin] = toBins(x, y);
+      let best = null, bd = 10 / perBin;
+      scene.C.forEach((p, i) => { const d = Math.hypot(p[0] - bx, p[1] - by); if (d < bd) { bd = d; best = i; } });
+      return best;
+    },
+    add: (x, y) => {
+      if (scene.C.length >= Fidelity.MAX_REFLECTORS) return null;
+      const [bx, by] = toBins(x, y);
+      scene.C.push([bx, by]);
+      scene.braw = Float64Array.from([...scene.braw, ...Fidelity.newAmplitude()]);
+      edited();
+      return scene.C.length - 1;
+    },
+    move: (i, x, y) => { const [bx, by] = toBins(x, y); scene.C[i] = [bx, by]; edited(); },
+    end: refit,
+    remove: (i) => {
+      if (scene.C.length <= Fidelity.MIN_REFLECTORS) return;
+      scene.C.splice(i, 1);
+      scene.braw = Float64Array.from([...scene.braw].filter((_, k) => k >> 1 !== i));
+      refit();
+    },
+  });
+
   newScene();
   return {
     start(m) { M = m; startFit(); },
-    stop() { cancelAnimationFrame(raf); },
+    stop() { cancelAnimationFrame(raf); raf = null; },
+    isRunning() { return raf !== null; },
     reseed() { seed = (seed * 48271) % 2147483647; newScene(); },
     redraw() { if (scene) draw(); },
     setScale(v) { scale = v; if (scene) draw(); },
@@ -698,25 +809,32 @@ function makeFit2D(stage, out) {
 
 // =========================================================================
 // Controller: one demo with a 1D / 2D switch (2D by default). Only the
-// active view runs; fitting starts the first time the demo scrolls into view.
+// active view runs. A view's scene is built on first use, fitting starts
+// when the demo scrolls into view, and a fit cut short by scrolling away
+// restarts on return, so an off-screen demo costs nothing.
 // =========================================================================
 (() => {
+  // This file is also loaded by race2d-worker.js, where there is no DOM.
+  if (typeof document === "undefined") return;
   const root = document.getElementById("demo-fit");
   if (!root) return;
   const out = Object.fromEntries([...root.querySelectorAll(".demo-side [data-out]")].map((e) => [e.dataset.out, e]));
   const stages = { "1d": root.querySelector('[data-view="1d"]'), "2d": root.querySelector('[data-view="2d"]') };
-  const views = { "1d": makeFit1D(stages["1d"], out), "2d": makeFit2D(stages["2d"], out) };
+  const views = {};
+  let scale = "lin";
+  const view = (m) => {
+    if (!views[m]) {
+      views[m] = m === "1d" ? makeFit1D(stages["1d"], out) : makeFit2D(stages["2d"], out);
+      if (m === "2d") views[m].setScale(scale);
+    }
+    return views[m];
+  };
   // Per-view limits: 2D Gaussian fits above 64 splats take several seconds.
   const MAX_COUNT = { "1d": 96, "2d": 64 };
-  const NOTES = {
-    "1d": "48 bins, shown in dB. A Dirichlet splat has a centre and a complex amplitude; a 1D Gaussian has a weight, centre, and width. NMSE compares magnitudes on a dense grid, as in the paper.",
-    "2d": "16 × 16 bins. A Dirichlet splat has a 2D centre and a complex amplitude; an axis-aligned Gaussian has a weight, 2D centre, and two widths. NMSE compares magnitudes on a dense grid.",
-  };
   const modeGroup = root.querySelector('[data-group="dim"]');
   const countGroup = root.querySelector('[data-group="count"]');
   const scaleGroup = root.querySelector('[data-group="scale"]');
   const scaleTool = scaleGroup.closest(".tool");
-  const note = root.querySelector('[data-out="note"]');
   let mode = "2d", M = 16, visible = false, dirty = true;
 
   const press = (group, value) => {
@@ -729,13 +847,12 @@ function makeFit2D(stage, out) {
     if (M > MAX_COUNT[mode]) M = MAX_COUNT[mode];
     press(countGroup, M);
     scaleTool.hidden = mode !== "2d";
-    note.textContent = NOTES[mode];
   }
   function run() {
     if (!visible) { dirty = true; return; }
     dirty = false;
     for (const k of Object.keys(views)) if (k !== mode) views[k].stop();
-    views[mode].start(M);
+    view(mode).start(M);
   }
 
   modeGroup.addEventListener("click", (e) => {
@@ -751,10 +868,15 @@ function makeFit2D(stage, out) {
   scaleGroup.addEventListener("click", (e) => {
     const btn = e.target.closest("button");
     if (!btn) return;
-    press(scaleGroup, btn.value); views["2d"].setScale(btn.value);
+    scale = btn.value; press(scaleGroup, scale);
+    if (views["2d"]) views["2d"].setScale(scale);
   });
-  root.querySelector('[data-action="new"]').addEventListener("click", () => { views[mode].reseed(); run(); });
-  DS.whenVisible(root, (v) => { visible = v; if (v && dirty) run(); });
-  DS.onResize(root, () => views[mode].redraw());
+  root.querySelector('[data-action="new"]').addEventListener("click", () => { view(mode).reseed(); run(); });
+  DS.whenVisible(root, (v) => {
+    visible = v;
+    if (!v && views[mode] && views[mode].isRunning()) { views[mode].stop(); dirty = true; }
+    if (v && dirty) run();
+  });
+  DS.onResize(root, () => { if (views[mode]) views[mode].redraw(); });
   applyMode();
 })();

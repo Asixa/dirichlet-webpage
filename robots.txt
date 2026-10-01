@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://dirichlet.xingyuchen.me/sitemap.xml

@@ -3,13 +3,76 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Dirichlet Splatting</title>
-  <meta name="description" content="Dirichlet Splatting: a physically grounded differentiable renderer for inverse problems with wave-based coherent sensors such as radar, sonar, and terahertz imaging. SIGGRAPH Asia 2026.">
+  <title>Dirichlet Splatting: Differentiable Rendering for Wave-Based Inverse Problems</title>
+  <meta name="description" content="A differentiable renderer for radar, sonar, and terahertz imaging whose splats are the exact Dirichlet point spread of a coherent sensor. SIGGRAPH Asia 2026.">
+  <meta name="author" content="Xingyu Chen, Wuqiong Zhao, Xinyu Zhang, Tzu-Mao Li">
+  <meta name="keywords" content="Dirichlet Splatting, differentiable rendering, inverse rendering, coherent imaging, Dirichlet kernel, terahertz imaging, radar, mmWave, sonar, Gaussian splatting, sliding Frank-Wolfe, SIGGRAPH Asia 2026">
+  <meta name="robots" content="index, follow">
+  <meta name="theme-color" content="#fafbfc">
+  <link rel="canonical" href="https://dirichlet.xingyuchen.me/">
+
+  <!-- Social previews. Image URLs must be absolute. -->
+  <meta property="og:type" content="article">
+  <meta property="og:site_name" content="Dirichlet Splatting">
   <meta property="og:title" content="Dirichlet Splatting: Differentiable Rendering for Wave-Based Inverse Problems">
-  <meta property="og:description" content="The point spread of a coherent sensor is a Dirichlet kernel, not a Gaussian. SIGGRAPH Asia 2026 (ACM TOG).">
-  <meta property="og:image" content="static/images/teaser.jpg">
-  <meta property="og:type" content="website">
+  <meta property="og:description" content="A differentiable renderer for radar, sonar, and terahertz imaging whose splats are the exact Dirichlet point spread of a coherent sensor. SIGGRAPH Asia 2026.">
+  <meta property="og:url" content="https://dirichlet.xingyuchen.me/">
+  <meta property="og:image" content="https://dirichlet.xingyuchen.me/static/images/social-card.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image:alt" content="Dirichlet Splatting pipeline: a bunny scanned by a coherent sensor, its spectrum, Dirichlet kernels, and the reconstructed surfel bunny.">
   <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Dirichlet Splatting: Differentiable Rendering for Wave-Based Inverse Problems">
+  <meta name="twitter:description" content="A differentiable renderer for radar, sonar, and terahertz imaging whose splats are the exact Dirichlet point spread of a coherent sensor. SIGGRAPH Asia 2026.">
+  <meta name="twitter:image" content="https://dirichlet.xingyuchen.me/static/images/social-card.jpg">
+
+  <!-- Google Scholar (Highwire Press tags). -->
+  <meta name="citation_title" content="Dirichlet Splatting: Differentiable Rendering for Wave-Based Inverse Problems">
+  <meta name="citation_author" content="Chen, Xingyu">
+  <meta name="citation_author" content="Zhao, Wuqiong">
+  <meta name="citation_author" content="Zhang, Xinyu">
+  <meta name="citation_author" content="Li, Tzu-Mao">
+  <meta name="citation_author_institution" content="University of California San Diego">
+  <meta name="citation_publication_date" content="2026/12">
+  <meta name="citation_journal_title" content="ACM Transactions on Graphics">
+  <meta name="citation_journal_abbrev" content="ACM Trans. Graph.">
+  <meta name="citation_conference_title" content="SIGGRAPH Asia 2026">
+  <meta name="citation_publisher" content="Association for Computing Machinery">
+  <meta name="citation_volume" content="45">
+  <meta name="citation_issue" content="6">
+  <meta name="citation_firstpage" content="199">
+  <meta name="citation_doi" content="10.1145/3842559">
+  <meta name="citation_pdf_url" content="https://dirichlet.xingyuchen.me/static/pdf/Dirichlet_Splatting.pdf">
+  <meta name="citation_abstract_html_url" content="https://dirichlet.xingyuchen.me/">
+
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "ScholarlyArticle",
+    "headline": "Dirichlet Splatting: Differentiable Rendering for Wave-Based Inverse Problems",
+    "name": "Dirichlet Splatting: Differentiable Rendering for Wave-Based Inverse Problems",
+    "url": "https://dirichlet.xingyuchen.me/",
+    "image": "https://dirichlet.xingyuchen.me/static/images/social-card.jpg",
+    "abstract": "We present Dirichlet Splatting, a physically grounded differentiable rendering method for inverse problems with wave-based coherent sensors. Unlike optical cameras, these sensors observe a scene in a band-limited Fourier space whose continuous point response is complex-valued and oscillatory. Our key observation is that the point spread function of a reflector in this Fourier space is the Dirichlet kernel, not a Gaussian. We instantiate each splat as a Dirichlet kernel in closed form, model each primitive as a planar surfel rendered through a surfel-aware Dirichlet splat whose complex amplitude is set by wave propagation physics, and introduce a sliding Frank–Wolfe adaptation tailored to the rugged, non-convex landscape that the Dirichlet oscillation induces. On terahertz tomography, Dirichlet Splatting recovers reflector geometry with an order of magnitude fewer parameters, faster convergence, and higher accuracy than 3D Gaussian Splatting.",
+    "keywords": ["differentiable rendering", "inverse rendering", "coherent imaging", "Dirichlet kernel", "terahertz imaging", "radar", "splatting"],
+    "datePublished": "2026-12",
+    "inLanguage": "en",
+    "license": "https://creativecommons.org/licenses/by/4.0/",
+    "sameAs": "https://doi.org/10.1145/3842559",
+    "identifier": {"@type": "PropertyValue", "propertyID": "DOI", "value": "10.1145/3842559"},
+    "author": [
+      {"@type": "Person", "name": "Xingyu Chen", "url": "https://xingyuchen.me", "affiliation": {"@type": "CollegeOrUniversity", "name": "University of California San Diego"}},
+      {"@type": "Person", "name": "Wuqiong Zhao", "url": "https://wqzhao.org", "affiliation": {"@type": "CollegeOrUniversity", "name": "University of California San Diego"}},
+      {"@type": "Person", "name": "Xinyu Zhang", "url": "https://xyzhang.ucsd.edu", "affiliation": {"@type": "CollegeOrUniversity", "name": "University of California San Diego"}},
+      {"@type": "Person", "name": "Tzu-Mao Li", "url": "https://cseweb.ucsd.edu/~tzli/", "affiliation": {"@type": "CollegeOrUniversity", "name": "University of California San Diego"}}
+    ],
+    "isPartOf": {
+      "@type": "PublicationIssue", "issueNumber": "6",
+      "isPartOf": {"@type": ["PublicationVolume", "Periodical"], "name": "ACM Transactions on Graphics", "volumeNumber": "45", "issn": "0730-0301", "publisher": {"@type": "Organization", "name": "Association for Computing Machinery"}}
+    },
+    "encoding": {"@type": "MediaObject", "encodingFormat": "application/pdf", "contentUrl": "https://dirichlet.xingyuchen.me/static/pdf/Dirichlet_Splatting.pdf"}
+  }
+  </script>
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M2 22h3l2-6 2 10 3-22 3 22 2-10 2 6h11' fill='none' stroke='%232b66a6' stroke-width='2.4' stroke-linejoin='round'/%3E%3C/svg%3E">
 
   <!-- Fonts and KaTeX are self-hosted: a slow or blocked CDN must not hold up first paint. -->
@@ -20,6 +83,23 @@
   <link rel="stylesheet" href="static/css/style.css">
 </head>
 <body>
+<!-- Icons: Lucide 1.49.0 (https://lucide.dev), ISC license. -->
+<svg class="sprite" aria-hidden="true" focusable="false">
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M5 5a2 2 0 0 1 3.008-1.728l11.997 6.998a2 2 0 0 1 .003 3.458l-12 7A2 2 0 0 1 5 19z" /></symbol>
+  <symbol id="i-pause" viewBox="0 0 24 24"><rect x="14" y="3" width="5" height="18" rx="1" /> <rect x="5" y="3" width="5" height="18" rx="1" /></symbol>
+  <symbol id="i-reset" viewBox="0 0 24 24"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /> <path d="M3 3v5h5" /></symbol>
+  <symbol id="i-dice" viewBox="0 0 24 24"><rect width="12" height="12" x="2" y="10" rx="2" ry="2" /> <path d="m17.92 14 3.5-3.5a2.24 2.24 0 0 0 0-3l-5-4.92a2.24 2.24 0 0 0-3 0L10 6" /> <path d="M6 18h.01" /> <path d="M10 14h.01" /> <path d="M15 6h.01" /> <path d="M18 9h.01" /></symbol>
+  <symbol id="i-trash" viewBox="0 0 24 24"><path d="M10 11v6" /> <path d="M14 11v6" /> <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6" /> <path d="M3 6h18" /> <path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" /></symbol>
+  <symbol id="i-paper" viewBox="0 0 24 24"><path d="M6 22a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h8a2.4 2.4 0 0 1 1.704.706l3.588 3.588A2.4 2.4 0 0 1 20 8v12a2 2 0 0 1-2 2z" /> <path d="M14 2v5a1 1 0 0 0 1 1h5" /> <path d="M10 9H8" /> <path d="M16 13H8" /> <path d="M16 17H8" /></symbol>
+  <symbol id="i-arxiv" viewBox="0 0 24 24"><path d="M15 12h-5" /> <path d="M15 8h-5" /> <path d="M19 17V5a2 2 0 0 0-2-2H4" /> <path d="M8 21h12a2 2 0 0 0 2-2v-1a1 1 0 0 0-1-1H11a1 1 0 0 0-1 1v1a2 2 0 1 1-4 0V5a2 2 0 1 0-4 0v2a1 1 0 0 0 1 1h3" /></symbol>
+  <symbol id="i-code" viewBox="0 0 24 24"><path d="m18 16 4-4-4-4" /> <path d="m6 8-4 4 4 4" /> <path d="m14.5 4-5 16" /></symbol>
+  <symbol id="i-link" viewBox="0 0 24 24"><path d="M15 3h6v6" /> <path d="M10 14 21 3" /> <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6" /></symbol>
+  <symbol id="i-cite" viewBox="0 0 24 24"><path d="M16 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z" /> <path d="M5 3a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2 1 1 0 0 1 1 1v1a2 2 0 0 1-2 2 1 1 0 0 0-1 1v2a1 1 0 0 0 1 1 6 6 0 0 0 6-6V5a2 2 0 0 0-2-2z" /></symbol>
+  <symbol id="i-hand" viewBox="0 0 24 24"><path d="M18 11V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2" /> <path d="M14 10V4a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2" /> <path d="M10 10.5V6a2 2 0 0 0-2-2a2 2 0 0 0-2 2v8" /> <path d="M18 8a2 2 0 1 1 4 0v6a8 8 0 0 1-8 8h-2c-2.8 0-4.5-.86-5.99-2.34l-3.6-3.6a2 2 0 0 1 2.83-2.82L7 15" /></symbol>
+  <symbol id="i-click" viewBox="0 0 24 24"><path d="M14 4.1 12 6" /> <path d="m5.1 8-2.9-.8" /> <path d="m6 12-1.9 2" /> <path d="M7.2 2.2 8 5.1" /> <path d="M9.037 9.69a.498.498 0 0 1 .653-.653l11 4.5a.5.5 0 0 1-.074.949l-4.349 1.041a1 1 0 0 0-.74.739l-1.04 4.35a.5.5 0 0 1-.95.074z" /></symbol>
+  <symbol id="i-mouse-right" viewBox="0 0 24 24"><path d="M12 7.318V10" /> <path d="M19 10v5a7 7 0 0 1-14 0V9c0-3.527 2.608-6.515 6-7" /> <circle cx="17" cy="4" r="2" /></symbol>
+  <symbol id="i-hand-grab" viewBox="0 0 24 24"><path d="M18 11.5V9a2 2 0 0 0-2-2a2 2 0 0 0-2 2v1.4" /> <path d="M14 10V8a2 2 0 0 0-2-2a2 2 0 0 0-2 2v2" /> <path d="M10 9.9V9a2 2 0 0 0-2-2a2 2 0 0 0-2 2v5" /> <path d="M6 14a2 2 0 0 0-2-2a2 2 0 0 0-2 2" /> <path d="M18 11a2 2 0 1 1 4 0v3a8 8 0 0 1-8 8h-4a8 8 0 0 1-8-8 2 2 0 1 1 4 0" /></symbol>
+</svg>
 
 <header class="masthead">
   <div class="wrap">
@@ -29,47 +109,44 @@
     </h1>
 
     <ul class="authors">
-      <li><a href="https://orcid.org/0000-0002-1989-4935">Xingyu Chen</a><sup>1</sup></li>
-      <li><a href="https://orcid.org/0000-0002-9550-7423">Wuqiong Zhao</a><sup>1</sup></li>
-      <li><a href="https://orcid.org/0000-0001-9688-8056">Xinyu Zhang</a><sup>1</sup></li>
-      <li><a href="https://cseweb.ucsd.edu/~tzli/">Tzu-Mao Li</a><sup>1</sup></li>
+      <li><a href="https://xingyuchen.me">Xingyu Chen</a></li>
+      <li><a href="https://wqzhao.org">Wuqiong Zhao</a></li>
+      <li><a href="https://xyzhang.ucsd.edu">Xinyu Zhang</a></li>
+      <li><a href="https://cseweb.ucsd.edu/~tzli/">Tzu-Mao Li</a></li>
     </ul>
-    <p class="affiliation"><sup>1</sup>University of California San Diego</p>
+    <p class="affiliation">University of California San Diego</p>
     <p class="venue">ACM Transactions on Graphics (Proceedings of SIGGRAPH Asia 2026)</p>
 
     <nav class="links" aria-label="Paper resources">
       <a class="pill" href="static/pdf/Dirichlet_Splatting.pdf">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M6 2h9l5 5v15H6z M15 2v5h5" /></svg>
+        <svg aria-hidden="true"><use href="#i-paper"/></svg>
         Paper
       </a>
       <!-- TODO: replace href with the arXiv abstract URL once it is public. -->
       <a class="pill is-pending" href="#" aria-disabled="true" title="Coming soon">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M5 19 12 5l7 14M8 13h8" /></svg>
+        <svg aria-hidden="true"><use href="#i-arxiv"/></svg>
         arXiv
       </a>
       <!-- TODO: replace href with the code repository URL once it is public. -->
       <a class="pill is-pending" href="#" aria-disabled="true" title="Coming soon">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="m8 7-5 5 5 5M16 7l5 5-5 5" /></svg>
+        <svg aria-hidden="true"><use href="#i-code"/></svg>
         Code
       </a>
       <a class="pill" href="https://doi.org/10.1145/3842559">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1" /></svg>
+        <svg aria-hidden="true"><use href="#i-link"/></svg>
         ACM DL
       </a>
       <a class="pill" href="#bibtex">
-        <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M8 4H6v16h2M16 4h2v16h-2" /></svg>
+        <svg aria-hidden="true"><use href="#i-cite"/></svg>
         BibTeX
       </a>
     </nav>
 
-    <figure class="trace">
-      <canvas id="hero-trace" aria-label="A Dirichlet kernel drawn in decibels; it follows the pointer." role="img"></canvas>
-      <figcaption>The point spread of one reflector, in dB. Move your pointer across it; the dots are the samples a sensor records.</figcaption>
-    </figure>
   </div>
 </header>
 
 <main>
+<noscript><p class="wrap noscript">The interactive figures on this page need JavaScript. The text and images read fine without it.</p></noscript>
 
 <section class="wrap teaser" aria-labelledby="teaser-title">
   <h2 id="teaser-title" class="visually-hidden">Teaser</h2>
@@ -96,6 +173,10 @@
       <li style="--x: 73%">Dirichlet</li>
       <li style="--x: 91%">Surfel splats</li>
     </ol>
+    <div class="trace">
+      <canvas id="hero-trace" role="img" aria-label="A Dirichlet kernel in decibels that follows the pointer."></canvas>
+      <p>The point spread of one reflector, in dB. Move your pointer across it; dots are the samples a sensor records.</p>
+    </div>
   </figure>
 </section>
 
@@ -126,13 +207,7 @@
           <button type="button" value="reim" aria-pressed="false">Re / Im</button>
         </div>
       </div>
-      <div class="tool">
-        <span class="tool-label" id="kw-label">Window</span>
-        <div class="seg" data-group="win" role="group" aria-labelledby="kw-label">
-          <button type="button" value="rect" aria-pressed="true">Rectangular</button>
-          <button type="button" value="hann" aria-pressed="false">Hann</button>
-        </div>
-      </div>
+      <div class="bar-note"><span class="hint">Slide the offset between two bins.</span></div>
     </div>
     <div class="demo-stage">
       <canvas class="plot plot-kernel" role="img" aria-label="Kernel plot: Dirichlet kernel, matched Gaussian, and recorded bin samples."></canvas>
@@ -165,11 +240,12 @@
   <h2 id="interference">Reflectors interfere before the detector squares</h2>
   <div class="prose">
     <p>Each surfel contributes one complex splat, and the renderer adds them: \(\hat Y(\mathbf f) = \sum_i \mathrm{splat}_i(\mathbf f)\), with observed power \(|\hat Y|^2\). There is no depth order and no opacity, so rendering is fully data-parallel. Because phasors add before the detector squares the result, reflectors a few cells apart reinforce or cancel each other, and their sidelobes form the cross-shaped lattice that a separable 2D DFT produces.</p>
-    <p class="howto">Drag a circle to move a reflector, or click an empty spot to add one (up to six). The hand on each circle shows its phase. Turn the phase of one reflector and watch the pattern between them change. Both panels use the same positions and complex amplitudes.</p>
+    <p class="howto">The hand on each circle shows its phase. Turn the phase of one reflector and watch the pattern between them change. Both panels use the same positions and complex amplitudes.</p>
   </div>
 
   <div class="demo" id="demo-interference">
     <div class="demo-bar">
+      <div class="bar-actions"><button type="button" class="icon-btn" data-action="reset" aria-label="Reset" data-tip="Reset"><svg aria-hidden="true"><use href="#i-reset"/></svg></button></div>
       <div class="tool">
         <span class="tool-label" id="is-label">Colour scale</span>
         <div class="seg" data-group="scale" role="group" aria-labelledby="is-label">
@@ -210,11 +286,6 @@
         <span class="field-label">Phase <output data-out="phase">0°</output></span>
         <input type="range" name="phase" min="0" max="6.283" step="0.01" value="0">
       </label>
-      <div class="row">
-        <button type="button" class="btn" data-action="remove">Remove reflector</button>
-        <button type="button" class="btn" data-action="reset">Reset</button>
-      </div>
-      <p class="note">The grid is 16 &times; 16 bins. The DFT is periodic, so a reflector pushed past one edge re-enters at the other.</p>
     </div>
   </div>
 </section>
@@ -237,37 +308,37 @@
   </div>
   <div class="prose">
     <p>Here \(\alpha_i\) is the complex reflectivity, \(A_i\) the disk area, \(V_i\) the bistatic foreshortening, \(F_i\) the Fresnel response of the surfel's material, and \(R_i^{-\gamma}\) free-space spreading. The centre \(\mu_{i,\ell}\) is the surfel's position and velocity projected onto measurement axis \(\ell\) (range, Doppler, or azimuth), playing the role of the projection Jacobian in 3DGS. Velocity therefore enters through the Doppler axis with no extra temporal layer.</p>
-    <p class="howto">Drag a surfel to move it, or drag its white handle to turn it. Turn a surfel away from the antennas and its splat fades (\(V\)). Switch it to glass and the Fresnel factor drops to about &minus;0.2. Move it a millimetre and the round-trip phase rotates, because it changes by a full cycle every 1.25&nbsp;mm at 120&nbsp;GHz. Overlapping splats then flip between reinforcing and cancelling.</p>
+    <p class="howto">Turn a surfel away from the antennas and its splat fades (\(V\)). Switch it to glass and the Fresnel factor drops to about &minus;0.2. Move it a millimetre and the round-trip phase rotates, because it changes by a full cycle every 1.25&nbsp;mm at 120&nbsp;GHz. Overlapping splats then flip between reinforcing and cancelling. The range&ndash;angle map is what a 16-element receive array reports after a range FFT and an angle FFT, drawn in the radar&rsquo;s fan view; rings mark where each surfel really is.</p>
   </div>
 
   <div class="demo" id="demo-surfel">
-    <div class="demo-stage">
-      <div class="surfel-layout">
-        <canvas data-panel="scene" class="plot plot-scene" tabindex="0" role="img"
-                aria-label="Top view of a transmitter, a receiver, and three surfels. Arrow keys rotate the selected surfel; S selects the next one."></canvas>
-        <div>
-          <canvas data-panel="profile" class="plot plot-profile" role="img" aria-label="Range profile: each surfel's splat and their coherent sum."></canvas>
-          <ul class="legend">
-            <li><span class="swatch sw-ink"></span>Coherent sum \(|\hat Y|\)</li>
-            <li><span class="swatch sw-dash"></span>One surfel's splat</li>
-          </ul>
+    <div class="demo-bar">
+      <div class="bar-actions"><button type="button" class="icon-btn" data-action="reset" aria-label="Reset" data-tip="Reset"><svg aria-hidden="true"><use href="#i-reset"/></svg></button></div>
+      <div class="tool">
+        <span class="tool-label" id="ra-label">Range&ndash;angle map</span>
+        <div class="seg" data-group="rascale" role="group" aria-labelledby="ra-label">
+          <button type="button" value="lin" aria-pressed="true">Linear</button>
+          <button type="button" value="db" aria-pressed="false">dB (40 dB range)</button>
         </div>
       </div>
     </div>
     <div class="demo-side">
-      <p class="field-label strong" data-out="selected">Surfel 2</p>
+      <figure class="panel">
+        <canvas data-panel="scene" class="plot plot-scene" tabindex="0" role="img"
+                aria-label="Top view of a transmitter, a receiver, and three surfels. Arrow keys rotate the selected surfel; S selects the next one."></canvas>
+      </figure>
       <div class="field">
-        <span class="field-label" id="sm-label">Material</span>
-        <div class="seg" data-group="material" role="group" aria-labelledby="sm-label">
-          <button type="button" value="metal" aria-pressed="true">Metal</button>
-          <button type="button" value="glass" aria-pressed="false">Glass</button>
-          <button type="button" value="silicon" aria-pressed="false">Silicon</button>
+        <div class="seg" data-group="material" role="group" aria-label="Material of the selected surfel">
+          <button type="button" value="metal" aria-pressed="true"><span class="mat-dot" style="--c: #4f5d73"></span>Metal</button>
+          <button type="button" value="glass" aria-pressed="false"><span class="mat-dot" style="--c: #2b9fc4"></span>Glass</button>
+          <button type="button" value="silicon" aria-pressed="false"><span class="mat-dot" style="--c: #7b4fa0"></span>Silicon</button>
         </div>
       </div>
       <label class="field">
         <span class="field-label">Area <output data-out="area">400 mm²</output></span>
         <input type="range" name="area" min="50" max="900" step="10" value="400">
       </label>
+      <p class="field-label">Amplitude of the selected surfel</p>
       <div class="bars" aria-live="polite">
         <div class="bar" data-bar="area"><span class="bar-name">\(\sqrt{A}\), area</span><span class="bar-track"><span class="bar-fill"></span></span><span class="bar-value"></span></div>
         <div class="bar" data-bar="V"><span class="bar-name">\(V\), foreshortening</span><span class="bar-track"><span class="bar-fill"></span></span><span class="bar-value"></span></div>
@@ -279,7 +350,19 @@
         <input type="checkbox" name="isotropic">
         <span>Treat surfels as isotropic points (no \(V\), no \(F\))</span>
       </label>
-      <button type="button" class="btn" data-action="reset">Reset</button>
+    </div>
+    <div class="demo-stage">
+      <figure class="panel">
+        <canvas data-panel="ra" class="plot plot-fan" role="img" aria-label="Fan-shaped range-angle radar image of the three surfels, with rings at their true positions."></canvas>
+        <figcaption>What the radar sees: range&ndash;angle map</figcaption>
+      </figure>
+      <div class="surfel-profile">
+        <canvas data-panel="profile" class="plot plot-profile" role="img" aria-label="Range profile: each surfel's splat and their coherent sum."></canvas>
+        <ul class="legend">
+          <li><span class="swatch sw-ink"></span>Coherent sum \(|\hat Y|\) along range</li>
+          <li><span class="swatch sw-dash"></span>One surfel's splat</li>
+        </ul>
+      </div>
     </div>
   </div>
 
@@ -309,50 +392,8 @@
 </section>
 
 <!-- ===================================================================== -->
-<section class="wrap block" aria-labelledby="dsfw">
-  <h2 id="dsfw">Optimizing on an oscillating landscape</h2>
-  <div class="prose">
-    <p>The oscillation that makes the kernel faithful also makes the loss rugged. A rectangular window gives &minus;13&nbsp;dB sidelobes, and each sidelobe peak is a gradient null. A splat that starts one main-lobe width from the truth descends into the nearest sidelobe and stays there.</p>
-    <p>Dirichlet Sliding Frank&ndash;Wolfe (DSFW) handles three problems at once. Sidelobe minima trap local search. Amplitude shrinkage lets a misplaced splat lower the loss by fading instead of moving. Splats within a kernel width are coupled, and diagonal preconditioners like Adam cannot make the joint move that untangles them. Each DSFW outer step does four things, in order:</p>
-    <ol class="steps">
-      <li><strong>Variable projection.</strong> The model is linear in the amplitudes, so we solve them in closed form, \(\mathbf b^\star = (G + \lambda I)^{-1} q\), and optimize centres alone. Amplitude shrinkage disappears as a degree of freedom.</li>
-      <li><strong>Residual certificate.</strong> We score every candidate location by \(s(\mathbf x) = |\langle a(\mathbf x),\, \mathbf y - A\mathbf b^\star\rangle| / \|a(\mathbf x)\|\), which is how much a new splat there would reduce the residual. It is global, so sidelobe minima do not stop it.</li>
-      <li><strong>Hard replacement.</strong> The splat with the lowest utility, a mix of its relative amplitude and how much of its footprint the other splats cannot already explain, moves to the certificate's peak. The budget stays fixed, because aperture and bandwidth bound how many scatterers can be resolved.</li>
-      <li><strong>Sliding.</strong> A Levenberg&ndash;Marquardt step on all centres resolves the coupling between neighbouring splats.</li>
-    </ol>
-    <p class="howto">Below, both optimizers start from the same random centres with six splats for four reflectors. Grey triangles mark the true reflectors; dots are splat centres. The blue shading in the DSFW panel is the current certificate.</p>
-  </div>
-
-  <div class="demo demo-wide" id="demo-race">
-    <div class="demo-stage">
-      <canvas data-panel="adam" class="plot plot-race" role="img" aria-label="AdamW: target spectrum and current fit."></canvas>
-      <canvas data-panel="dsfw" class="plot plot-race" role="img" aria-label="DSFW: target spectrum, current fit, and certificate."></canvas>
-    </div>
-    <div class="demo-side">
-      <div class="row">
-        <button type="button" class="btn btn-primary" data-action="run">Run</button>
-        <button type="button" class="btn" data-action="new">New scene</button>
-      </div>
-      <canvas data-panel="loss" class="plot plot-loss" role="img" aria-label="Loss curves of both optimizers on a log scale."></canvas>
-      <ul class="legend legend-tight">
-        <li><span class="swatch sw-gau sw-solid"></span>AdamW, 900 steps</li>
-        <li><span class="swatch sw-dir"></span>DSFW, 24 outer steps</li>
-      </ul>
-      <dl class="readout">
-        <div><dt>AdamW</dt><dd data-out="adam">–</dd></div>
-        <div><dt>DSFW</dt><dd data-out="dsfw">–</dd></div>
-      </dl>
-      <p class="status" data-out="log" aria-live="polite"></p>
-      <p class="note">A one-dimensional re-implementation that runs in your browser. A reflector counts as found when a splat lands within 0.1 bin, the criterion used in the paper.</p>
-    </div>
-  </div>
-</section>
-
-<!-- ===================================================================== -->
-<section class="wrap block" aria-labelledby="results">
-  <h2 id="results">Results</h2>
-
-  <h3>The kernel is exact; Gaussians only approximate it</h3>
+<section class="wrap block" aria-labelledby="exact">
+  <h2 id="exact">The kernel is exact; Gaussians only approximate it</h2>
   <div class="prose">
     <p>A handful of Dirichlet splats reproduce a coherent scene exactly, sidelobes included. Gaussians must spend many splats to approximate the same profile, and adding more improves the envelope only slowly. In the paper, three Dirichlet primitives reach the numerical floor (&minus;120&nbsp;dB normalized error) on a three-reflector range profile, while 96 Gaussians, 32&times; more, reach only &minus;30.1&nbsp;dB. The gap is in the representation, not the optimizer.</p>
     <p class="howto">Each new ground truth places 2 to 4 random complex reflectors. Switch between a 1D range profile and a 2D spectrum, pick a Gaussian budget, and the page fits it live, minimizing the same magnitude error it reports: each Gaussian has a free centre and width (Levenberg&ndash;Marquardt) and a signed weight solved by least squares, so splats can also cancel. The Dirichlet fit uses one splat per reflector, placed by the residual certificate. Dots under each plot are splat centres.</p>
@@ -360,6 +401,7 @@
 
   <div class="demo" id="demo-fit">
     <div class="demo-bar">
+      <div class="bar-actions"><button type="button" class="icon-btn" data-action="new" aria-label="New ground truth" data-tip="New ground truth"><svg aria-hidden="true"><use href="#i-dice"/></svg></button></div>
       <div class="tool">
         <div class="seg" data-group="dim" role="group" aria-label="Dimension">
           <button type="button" value="1d" aria-pressed="false">1D range profile</button>
@@ -384,7 +426,6 @@
           <button type="button" value="db" aria-pressed="false">dB</button>
         </div>
       </div>
-      <button type="button" class="btn btn-primary tool-end" data-action="new">New ground truth</button>
     </div>
     <div class="demo-stage">
       <div data-view="1d" hidden>
@@ -399,7 +440,10 @@
       <div data-view="2d">
         <div class="trio">
           <figure class="panel">
-            <div class="panel-box"><canvas data-panel="gt" class="heat"></canvas></div>
+            <div class="panel-box">
+              <canvas data-panel="gt" class="heat"></canvas>
+              <canvas data-panel="gt" class="panel-overlay" role="img" aria-label="Ground-truth spectrum. Drag a reflector to move it."></canvas>
+            </div>
             <figcaption>Ground truth</figcaption>
           </figure>
           <figure class="panel">
@@ -421,14 +465,118 @@
         <div><dt>Gaussian magnitude NMSE</dt><dd data-out="gnmse">–</dd></div>
         <div><dt>Gaussian parameters</dt><dd data-out="gparams">–</dd></div>
       </dl>
-      <p class="status" data-out="status" aria-live="polite"></p>
-      <p class="note" data-out="note"></p>
     </div>
   </div>
 
   <div class="prose">
     <p>The same kernel extends to the Doppler axis. On a moving three-reflector scene, the joint position&ndash;velocity model matches the FFT oracle to &minus;120&nbsp;dB and recovers every velocity on a 0.05&nbsp;m/s grid.</p>
   </div>
+</section>
+
+<!-- ===================================================================== -->
+<section class="wrap block" aria-labelledby="dsfw">
+  <h2 id="dsfw">Optimizing on an oscillating landscape</h2>
+  <div class="prose">
+    <p>The oscillation that makes the kernel faithful also makes the loss rugged. A rectangular window gives &minus;13&nbsp;dB sidelobes, and each sidelobe peak is a gradient null. A splat that starts one main-lobe width from the truth descends into the nearest sidelobe and stays there.</p>
+    <p>Dirichlet Sliding Frank&ndash;Wolfe (DSFW) handles three problems at once. Sidelobe minima trap local search. Amplitude shrinkage lets a misplaced splat lower the loss by fading instead of moving. Splats within a kernel width are coupled, and diagonal preconditioners like Adam cannot make the joint move that untangles them. Each DSFW outer step does four things, in order:</p>
+    <ol class="steps">
+      <li><strong>Variable projection.</strong> The model is linear in the amplitudes, so we solve them in closed form, \(\mathbf b^\star = (G + \lambda I)^{-1} q\), and optimize centres alone. Amplitude shrinkage disappears as a degree of freedom.</li>
+      <li><strong>Residual certificate.</strong> We score every candidate location by \(s(\mathbf x) = |\langle a(\mathbf x),\, \mathbf y - A\mathbf b^\star\rangle| / \|a(\mathbf x)\|\), which is how much a new splat there would reduce the residual. It is global, so sidelobe minima do not stop it.</li>
+      <li><strong>Hard replacement.</strong> The splat with the lowest utility, a mix of its relative amplitude and how much of its footprint the other splats cannot already explain, moves to the certificate's peak. The budget stays fixed, because aperture and bandwidth bound how many scatterers can be resolved.</li>
+      <li><strong>Sliding.</strong> A Levenberg&ndash;Marquardt step on all centres resolves the coupling between neighbouring splats.</li>
+    </ol>
+    <p class="howto">Both optimizers start from the same random centres, with two more splats than reflectors. A reflector counts as found when a splat lands within 0.1 bin of it. Drag any splat, even mid-run, and watch each method recover; the <em>Certificate</em> view shows where DSFW will place its next splat.</p>
+  </div>
+
+  <div class="demo" id="demo-opt">
+    <div class="demo-bar">
+      <div class="bar-actions" data-only="2d"><button type="button" class="icon-btn is-primary is-attention" data-action="run" aria-label="Run" data-tip="Run"><svg aria-hidden="true"><use href="#i-play"/></svg></button><button type="button" class="icon-btn" data-action="reset" aria-label="New random start" data-tip="New random start"><svg aria-hidden="true"><use href="#i-dice"/></svg></button></div>
+      <div class="bar-actions" data-only="1d" hidden><button type="button" class="icon-btn is-primary is-attention" data-action="run" aria-label="Run" data-tip="Run"><svg aria-hidden="true"><use href="#i-play"/></svg></button><button type="button" class="icon-btn" data-action="new" aria-label="New scene" data-tip="New scene"><svg aria-hidden="true"><use href="#i-dice"/></svg></button></div>
+      <div class="tool">
+        <div class="seg" data-group="dim" role="group" aria-label="Dimension">
+          <button type="button" value="1d" aria-pressed="false">1D profile</button>
+          <button type="button" value="2d" aria-pressed="true">2D spectrum</button>
+        </div>
+      </div>
+      <div class="tool" data-only="2d">
+        <span class="tool-label" id="os-label">Shape</span>
+        <div class="seg" data-group="shape" role="group" aria-labelledby="os-label">
+          <button type="button" value="square" aria-pressed="true">Square</button>
+          <button type="button" value="star" aria-pressed="false">Star</button>
+          <button type="button" value="A" aria-pressed="false">Letter A</button>
+        </div>
+      </div>
+      <div class="tool" data-only="2d">
+        <span class="tool-label" id="ov-label">DSFW panel</span>
+        <div class="seg" data-group="dsfwview" role="group" aria-labelledby="ov-label">
+          <button type="button" value="fit" aria-pressed="true">Fit</button>
+          <button type="button" value="cert" aria-pressed="false">Certificate</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="demo-view" data-view="2d" id="demo-race2d">
+      <div class="demo-stage">
+        <div class="trio">
+          <figure class="panel">
+            <div class="panel-box">
+              <canvas data-panel="target" class="heat"></canvas>
+              <canvas data-panel="target" class="panel-overlay" role="img" aria-label="Target spectrum. Drag reflectors, or click to add one."></canvas>
+            </div>
+            <figcaption>Target</figcaption>
+          </figure>
+          <figure class="panel">
+            <div class="panel-box">
+              <canvas data-panel="adam" class="heat"></canvas>
+              <canvas data-panel="adam" class="panel-overlay" role="img" aria-label="AdamW fit. Drag splats to move them."></canvas>
+            </div>
+            <figcaption><span class="swatch sw-gau sw-solid"></span>AdamW</figcaption>
+          </figure>
+          <figure class="panel">
+            <div class="panel-box">
+              <canvas data-panel="dsfw" class="heat"></canvas>
+              <canvas data-panel="dsfw" class="panel-overlay" role="img" aria-label="DSFW fit or certificate. Drag splats to move them."></canvas>
+            </div>
+            <figcaption><span class="swatch sw-dir"></span><span data-out="dsfwTitle">DSFW</span></figcaption>
+          </figure>
+        </div>
+      </div>
+      <div class="demo-side">
+        <canvas data-panel="loss" class="plot plot-loss" role="img" aria-label="Loss curves of both optimizers on a log scale."></canvas>
+        <ul class="legend legend-tight">
+          <li><span class="swatch sw-gau sw-solid"></span>AdamW, 800 steps</li>
+          <li><span class="swatch sw-dir"></span>DSFW, 40 outer steps</li>
+        </ul>
+        <dl class="readout">
+          <div><dt>AdamW</dt><dd data-out="adam">–</dd></div>
+          <div><dt>DSFW</dt><dd data-out="dsfw">–</dd></div>
+        </dl>
+      </div>
+    </div>
+
+    <div class="demo-view" data-view="1d" id="demo-race" hidden>
+      <div class="demo-stage">
+        <canvas data-panel="adam" class="plot plot-race" role="img" aria-label="AdamW: target spectrum and current fit."></canvas>
+        <canvas data-panel="dsfw" class="plot plot-race" role="img" aria-label="DSFW: target spectrum, current fit, and certificate."></canvas>
+      </div>
+      <div class="demo-side">
+        <canvas data-panel="loss" class="plot plot-loss" role="img" aria-label="Loss curves of both optimizers on a log scale."></canvas>
+        <ul class="legend legend-tight">
+          <li><span class="swatch sw-gau sw-solid"></span>AdamW, 900 steps</li>
+          <li><span class="swatch sw-dir"></span>DSFW, 24 outer steps</li>
+        </ul>
+        <dl class="readout">
+          <div><dt>AdamW</dt><dd data-out="adam">–</dd></div>
+          <div><dt>DSFW</dt><dd data-out="dsfw">–</dd></div>
+        </dl>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================================================================== -->
+<section class="wrap block" aria-labelledby="results">
+  <h2 id="results">Results</h2>
 
   <h3>3D reconstruction</h3>
   <div class="split">
@@ -525,6 +673,7 @@
 <script defer src="static/js/surfel.js"></script>
 <script defer src="static/js/optim.js"></script>
 <script defer src="static/js/fidelity.js"></script>
+<script defer src="static/js/race2d.js"></script>
 <script defer src="static/js/page.js"></script>
 </body>
 </html>

@@ -12,7 +12,6 @@
   const phaseOut = root.querySelector('[data-out="phase"]');
   const selOut = root.querySelector('[data-out="selected"]');
   const resetBtn = root.querySelector('[data-action="reset"]');
-  const removeBtn = root.querySelector('[data-action="remove"]');
 
   const N = 16;               // DFT length per axis (bins)
   const PX_PER_BIN = 16;      // internal render resolution
@@ -118,7 +117,6 @@
       const r = refl[selected];
       selOut.textContent = r ? `Reflector ${selected + 1} of ${refl.length}` : "None selected";
       phaseIn.disabled = !r;
-      removeBtn.disabled = refl.length <= 1;
       if (r) {
         phaseIn.value = r.phase.toFixed(2);
         phaseOut.textContent = `${Math.round((r.phase * 180) / Math.PI)}°`;
@@ -126,43 +124,40 @@
     });
   }
 
-  // Pointer: drag an existing reflector, or click empty space to add one.
-  let drag = null;
-  function toBins(ov, e) {
-    const rect = ov.getBoundingClientRect();
-    return {
-      x: Math.max(0, Math.min(N, ((e.clientX - rect.left) / rect.width) * N)),
-      y: Math.max(0, Math.min(N, (1 - (e.clientY - rect.top) / rect.height) * N)),
-      perBin: rect.width / N,
-    };
-  }
+  // Shared gestures (DS.pointEditor): drag to move, click empty space to
+  // add, right-click or long-press to delete. Either panel edits the scene.
   for (const ov of overlays) {
-    ov.addEventListener("pointerdown", (e) => {
-      const p = toBins(ov, e);
-      let hit = -1, best = 14 / p.perBin;
-      refl.forEach((r, i) => {
-        const d = Math.hypot(r.x - p.x, r.y - p.y);
-        if (d < best) { best = d; hit = i; }
-      });
-      if (hit < 0) {
-        if (refl.length >= MAX_REFLECTORS) return;
-        refl.push({ x: p.x, y: p.y, amp: 0.8, phase: 0 });
-        hit = refl.length - 1;
-      }
-      selected = hit;
-      drag = { ov, id: e.pointerId };
-      ov.setPointerCapture(e.pointerId);
-      update();
+    const toBins = (x, y) => {
+      const w = ov.getBoundingClientRect().width;
+      return [Math.max(0, Math.min(N, (x / w) * N)), Math.max(0, Math.min(N, (1 - y / w) * N)), w / N];
+    };
+    DS.pointEditor(ov, {
+      hit: (x, y) => {
+        const [bx, by, perBin] = toBins(x, y);
+        let best = null, bd = 14 / perBin;
+        refl.forEach((r, i) => { const d = Math.hypot(r.x - bx, r.y - by); if (d < bd) { bd = d; best = i; } });
+        return best;
+      },
+      add: (x, y) => {
+        if (refl.length >= MAX_REFLECTORS) return null;
+        const [bx, by] = toBins(x, y);
+        refl.push({ x: bx, y: by, amp: 0.8, phase: 0 });
+        selected = refl.length - 1;
+        update();
+        return selected;
+      },
+      move: (i, x, y) => {
+        const [bx, by] = toBins(x, y);
+        selected = i; refl[i].x = bx; refl[i].y = by;
+        update();
+      },
+      remove: (i) => {
+        if (refl.length <= 1) return;
+        refl.splice(i, 1);
+        selected = Math.min(selected, refl.length - 1);
+        update();
+      },
     });
-    ov.addEventListener("pointermove", (e) => {
-      if (!drag || drag.id !== e.pointerId) return;
-      const p = toBins(ov, e);
-      refl[selected].x = p.x; refl[selected].y = p.y;
-      update();
-    });
-    const end = () => { drag = null; };
-    ov.addEventListener("pointerup", end);
-    ov.addEventListener("pointercancel", end);
   }
 
   phaseIn.addEventListener("input", () => {
@@ -171,12 +166,6 @@
     update();
   });
   resetBtn.addEventListener("click", () => { refl = initial(); selected = 0; update(); });
-  removeBtn.addEventListener("click", () => {
-    if (refl.length <= 1) return;
-    refl.splice(selected, 1);
-    selected = Math.max(0, selected - 1);
-    update();
-  });
   for (const group of root.querySelectorAll("[data-group]")) {
     group.addEventListener("click", (e) => {
       const btn = e.target.closest("button");

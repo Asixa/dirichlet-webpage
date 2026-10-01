@@ -14,26 +14,16 @@
   const readPeak = root.querySelector('[data-out="peak"]');
   const readGauss = root.querySelector('[data-out="gauss"]');
 
-  const state = { N: 16, delta: 0.3, view: "db", win: "rect" };
+  const state = { N: 16, delta: 0.3, view: "db" };
   const FLOOR_DB = -60;
-  const tmp = [0, 0], t1 = [0, 0], t2 = [0, 0];
+  const tmp = [0, 0];
 
-  // Window response in unit-peak form. The periodic Hann window is a sum of
-  // three complex exponentials, so its DFT response is exactly
-  // d(D) - 0.5 d(D-1) - 0.5 d(D+1): still closed form, still no fitting.
-  function kernel(delta, N, out) {
-    if (state.win === "rect") return DS.dirichlet(delta, N, out);
-    DS.dirichlet(delta, N, tmp);
-    DS.dirichlet(delta - 1, N, t1);
-    DS.dirichlet(delta + 1, N, t2);
-    out[0] = tmp[0] - 0.5 * (t1[0] + t2[0]);
-    out[1] = tmp[1] - 0.5 * (t1[1] + t2[1]);
-    return out;
-  }
-  // Main-lobe FWHM: 1.207 bins (rectangular), 2.00 bins (Hann).
-  const sigma = () => (state.win === "rect" ? 1.2067 : 2.0) / 2.3548;
+  const kernel = (delta, N, out) => DS.dirichlet(delta, N, out);
+  // Main-lobe FWHM of the rectangular window is 1.207 bins; the Gaussian
+  // gets the same FWHM so the two curves agree at the peak.
+  const SIGMA = 1.2067 / 2.3548;
   // Half-width of the main lobe to the first null, in bins.
-  const lobe = () => (state.win === "rect" ? 1 : 2);
+  const LOBE = 1;
 
   function draw() {
     const { ctx, w, h } = DS.fitCanvas(canvas);
@@ -92,7 +82,7 @@
       }
       ctx.stroke(); ctx.setLineDash([]);
     };
-    const gaussAt = (f) => DS.gaussian(DS.wrap(f - mu, N), sigma());
+    const gaussAt = (f) => DS.gaussian(DS.wrap(f - mu, N), SIGMA);
 
     if (state.view === "reim") {
       curve((f) => kernel(f - mu, N, tmp)[0], dir, 1.6);
@@ -108,8 +98,8 @@
     for (let k = 0; k < N; k++) {
       kernel(k - mu, N, tmp);
       const mag = Math.hypot(tmp[0], tmp[1]);
-      const g = DS.gaussian(DS.wrap(k - mu, N), sigma());
-      const outside = Math.abs(DS.wrap(k - mu, N)) >= lobe();
+      const g = DS.gaussian(DS.wrap(k - mu, N), SIGMA);
+      const outside = Math.abs(DS.wrap(k - mu, N)) >= LOBE;
       eAll += mag * mag; gAll += g * g;
       if (outside) { eOut += mag * mag; gOut += g * g; }
       peak = Math.max(peak, mag);

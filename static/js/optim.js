@@ -164,11 +164,12 @@ const Model1D = (() => {
   const cvAdam = root.querySelector('[data-panel="adam"]');
   const cvDsfw = root.querySelector('[data-panel="dsfw"]');
   const cvLoss = root.querySelector('[data-panel="loss"]');
-  const runBtn = root.querySelector('[data-action="run"]');
-  const newBtn = root.querySelector('[data-action="new"]');
+  // Action buttons live in the shared toolbar above the 1D / 2D views.
+  const tools = root.closest(".demo").querySelector('.demo-bar .bar-actions[data-only="1d"]');
+  const runBtn = tools.querySelector('[data-action="run"]');
+  const newBtn = tools.querySelector('[data-action="new"]');
   const outAdam = root.querySelector('[data-out="adam"]');
   const outDsfw = root.querySelector('[data-out="dsfw"]');
-  const logOut = root.querySelector('[data-out="log"]');
 
   const N = 48, K = 4, S = 6;
   const ADAM_STEPS = 900, DSFW_STEPS = 24;
@@ -208,7 +209,6 @@ const Model1D = (() => {
     dsfw = { C: C0.slice(), b: Float64Array.from(b0), t: 0, hist: [], cert: null, last: null };
     dsfw.hist.push([0, Model1D.loss(dsfw.C, dsfw.b, y, N)]);
     frame = 0;
-    logOut.textContent = "Press Run. Both methods start from the same random centres.";
     drawAll();
   }
 
@@ -409,36 +409,31 @@ const Model1D = (() => {
     while (dsfw.t < dsfwTarget && dsfw.t < DSFW_STEPS) {
       const info = dsfwStep();
       dsfw.hist.push([dsfw.t, info.L]);
-      logOut.textContent = info.takeSwap
-        ? `DSFW step ${dsfw.t}: the certificate peaks at bin ${info.xStar.toFixed(2)}, so the lowest-utility splat jumps there.`
-        : `DSFW step ${dsfw.t}: no replacement lowers the loss, so the splats only slide.`;
     }
     drawAll();
     if (frame >= FRAMES) {
       running = false;
-      runBtn.textContent = "Run again";
-      const ok = matched(dsfw.C) === K, okA = matched(adam.C) === K;
-      logOut.textContent = `Done. DSFW found ${matched(dsfw.C)} of ${K} reflectors${ok ? "" : " (try another scene)"}; AdamW found ${matched(adam.C)}${okA ? "" : ", stuck next to sidelobes"}.`;
+      DS.setRunButton(runBtn, "again");
       return;
     }
     raf = requestAnimationFrame(tick);
   }
 
   runBtn.addEventListener("click", () => {
-    if (running) { running = false; runBtn.textContent = "Resume"; return; }
+    if (running) { running = false; DS.setRunButton(runBtn, "resume"); return; }
     if (frame >= FRAMES) reset();
     running = true;
-    runBtn.textContent = "Pause";
+    DS.setRunButton(runBtn, "pause");
     raf = requestAnimationFrame(tick);
   });
   newBtn.addEventListener("click", () => {
     cancelAnimationFrame(raf);
     running = false;
-    runBtn.textContent = "Run";
+    DS.setRunButton(runBtn, "run");
     seed = (seed * 1103515245 + 12345) % 2147483647;
     newScene();
   });
-  DS.whenVisible(root, (visible) => { if (!visible && running) { running = false; runBtn.textContent = "Resume"; } });
+  DS.whenVisible(root, (visible) => { if (!visible && running) { running = false; DS.setRunButton(runBtn, "resume"); } });
 
   // The first scene is built (and drawn) only when the demo nears the viewport.
   DS.onResize(root, () => { if (truth) drawAll(); else newScene(); });

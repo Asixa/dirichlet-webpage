@@ -1,6 +1,7 @@
-// Header trace: |d_N| of one reflector placed at the pointer, drawn in dB
-// with the integer-bin samples a sensor would record. It draws in once on
-// load; afterwards it only changes when the pointer moves.
+// PSF strip under the teaser: |d_N| of one reflector placed at the pointer,
+// drawn in dB with the integer-bin samples a sensor would record. It draws in
+// once when first scrolled into view; afterwards it only changes when the
+// pointer moves over the teaser.
 "use strict";
 
 (() => {
@@ -53,7 +54,13 @@
     ctx.stroke();
   }
 
+  let scheduled = false;
+  function schedule() {
+    if (!scheduled) { scheduled = true; requestAnimationFrame(frame); }
+  }
+
   function frame() {
+    scheduled = false;
     let again = false;
     if (reveal < 1) { reveal = Math.min(1, reveal + 0.022); again = true; }
     if (target !== null) {
@@ -62,17 +69,18 @@
       if (Math.abs(d) > 0.002) { mu += d * 0.18; again = true; } else mu = target;
     }
     draw();
-    if (again) requestAnimationFrame(frame);
+    if (again) schedule();
   }
 
-  const header = document.querySelector(".masthead") || canvas;
-  header.addEventListener("pointermove", (e) => {
+  const area = canvas.closest(".teaser") || canvas;
+  area.addEventListener("pointermove", (e) => {
     const rect = canvas.getBoundingClientRect();
     const N = Math.max(8, Math.round(rect.width / BIN_PX));
     target = ((e.clientX - rect.left) / rect.width) * N;
-    requestAnimationFrame(frame);
+    schedule();
   });
 
-  DS.onResize(canvas, draw);
-  requestAnimationFrame(frame);
+  // First call (when the strip nears the viewport) starts the draw-in.
+  let started = false;
+  DS.onResize(canvas, () => { if (started) draw(); else { started = true; schedule(); } });
 })();

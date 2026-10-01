@@ -56,20 +56,22 @@ a:hover { text-decoration-thickness: 2px; }
 /* ---------------- Masthead ---------------- */
 
 /* Layout follows the common graphics project-page header: one large
-   centred title, blue author links with affiliation numbers, a venue
+   centred title, blue author links to homepages, a venue
    line, then dark pill buttons. */
 .masthead { text-align: center; padding: 64px 0 8px; }
 .title {
   font-family: var(--font-ui);
   font-weight: 700;
+  font-size: clamp(2.3rem, 6vw, 4rem);
   line-height: 1.08;
   letter-spacing: -0.025em;
-  margin: 0 auto 0.75em;
-  max-width: 980px;
+  margin: 0 auto 0.4em;
+  max-width: 1100px;
   text-wrap: balance;
 }
-.title-main { display: block; font-size: clamp(2.6rem, 7vw, 4.5rem); line-height: 1.02; letter-spacing: -0.03em; }
-.title-sub { display: block; font-size: clamp(1.55rem, 3.9vw, 2.75rem); font-weight: 600; margin-top: 0.22em; }
+/* The subtitle runs a step smaller and in regular weight under the name. */
+.title-main { display: block; letter-spacing: -0.03em; }
+.title-sub { display: block; font-size: 0.8em; font-weight: 400; letter-spacing: -0.02em; margin-top: 0.1em; }
 .authors {
   list-style: none; padding: 0; margin: 0;
   display: flex; flex-wrap: wrap; justify-content: center; gap: 0.15em 0;
@@ -78,7 +80,6 @@ a:hover { text-decoration-thickness: 2px; }
 .authors li:not(:last-child)::after { content: ","; margin-right: 0.55em; color: var(--ink); }
 .authors a { color: var(--dir); text-decoration: none; }
 .authors a:hover { text-decoration: underline; }
-.authors sup, .affiliation sup { font-size: 0.62em; margin-left: 1px; }
 .affiliation, .venue { font-family: var(--font-ui); margin: 0.4em 0 0; }
 .affiliation { font-size: 1.05rem; color: var(--muted); }
 .venue { font-size: 1.3rem; font-weight: 400; color: var(--ink); margin-top: 0.75em; }
@@ -97,9 +98,11 @@ a:hover { text-decoration-thickness: 2px; }
 .pill.is-pending { background: transparent; color: var(--muted); box-shadow: inset 0 0 0 1px var(--panel-edge); cursor: default; }
 .pill.is-pending::after { content: "soon"; font-weight: 500; font-size: 0.75rem; color: var(--muted); margin-left: 2px; }
 
-.trace { margin: 36px 0 0; }
-.trace canvas { width: 100%; height: 72px; }
-.trace figcaption { font-family: var(--font-ui); font-size: 0.8rem; color: var(--muted); text-align: right; margin-top: 2px; }
+/* Live PSF strip under the teaser: kept short so it reads as part of the figure. */
+.trace { margin: 14px 0 0; }
+.trace canvas { width: 100%; height: 44px; }
+.trace p { margin: 0; font-family: var(--font-ui); font-size: 0.78rem; color: var(--muted); text-align: right; }
+.noscript { font-family: var(--font-ui); color: var(--muted); }
 
 /* ---------------- Teaser ---------------- */
 
@@ -197,19 +200,120 @@ a:hover { text-decoration-thickness: 2px; }
 }
 .tool { display: flex; align-items: center; gap: 8px; }
 .tool-label { color: var(--muted); font-size: 0.85rem; }
-.tool-end { margin-left: auto; }
+.bar-actions { display: flex; align-items: center; gap: 6px; padding-right: 16px; border-right: 1px solid var(--panel-edge); }
+.bar-note { margin-left: auto; }
+.hint { color: var(--muted); font-size: 0.82rem; margin-right: 6px; }
+
+/* Icon buttons with a CSS tooltip from data-tip (shown on hover and on
+   keyboard focus; aria-label carries the same text for screen readers). */
+.sprite { position: absolute; width: 0; height: 0; overflow: hidden; }
+.icon-btn {
+  position: relative; display: inline-grid; place-items: center;
+  width: 34px; height: 34px; padding: 0; border: 0; border-radius: 8px; cursor: pointer;
+  background: #fff; color: var(--ink); box-shadow: inset 0 0 0 1px var(--panel-edge);
+}
+.icon-btn svg { width: 18px; height: 18px; fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+.icon-btn:hover { box-shadow: inset 0 0 0 1px var(--muted); }
+.icon-btn.is-primary { background: var(--dir); color: #fff; box-shadow: none; }
+.icon-btn.is-primary:hover { background: #1f5590; }
+.icon-btn:disabled { opacity: 0.4; cursor: default; }
+.icon-btn[data-tip]::after {
+  content: attr(data-tip);
+  position: absolute; bottom: calc(100% + 8px); left: 0; z-index: 5;
+  padding: 4px 8px; border-radius: 5px;
+  background: var(--ink); color: #fff;
+  font-size: 0.78rem; font-weight: 500; white-space: nowrap;
+  opacity: 0; pointer-events: none; transition: opacity 0.12s;
+}
+.icon-btn[data-tip]:hover::after, .icon-btn[data-tip]:focus-visible::after { opacity: 1; }
+@media (prefers-reduced-motion: reduce) { .icon-btn[data-tip]::after { transition: none; } }
+/* Attention ring on a button the reader has not pressed yet (the optimizer's
+   Run): a soft pulse spreading from its edge. page.js drops the class on
+   the first click. ::after is taken by the tooltip, so the ring uses ::before. */
+.icon-btn.is-attention::before {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  animation: attention-ring 1.6s ease-out infinite;
+}
+@keyframes attention-ring {
+  0% { box-shadow: 0 0 0 0 rgba(43, 102, 166, 0.65); }
+  70% { box-shadow: 0 0 0 9px rgba(43, 102, 166, 0); }
+  100% { box-shadow: 0 0 0 0 rgba(43, 102, 166, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .icon-btn.is-attention::before { animation: none; box-shadow: 0 0 0 3px rgba(43, 102, 166, 0.35); }
+}
+
+/* First-view gesture overlay on each editable canvas (DS.pointEditor):
+   a dark veil that flashes twice to catch the eye, a hand that drags a
+   dot with a small press-and-release bob, and the three gestures in white.
+   pointer-events: none lets the first press reach the canvas. */
+.hint-host { position: relative; }
+.edit-hint {
+  position: absolute; z-index: 6; border-radius: 6px;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px;
+  background: rgba(23, 32, 44, 0.72); backdrop-filter: blur(1.5px);
+  pointer-events: none;
+  animation: edit-hint-in 0.25s ease, edit-hint-flash 0.9s ease-in-out 0.25s 2;
+}
+.edit-hint.is-row { flex-direction: row; gap: 32px; }
+.edit-hint.is-leaving { opacity: 0; transition: opacity 0.3s; }
+.edit-hint-demo { position: relative; width: 84px; height: 44px; flex: none; }
+.edit-hint-dot {
+  position: absolute; left: 18px; top: 20px; width: 12px; height: 12px; border-radius: 50%;
+  background: #7fb6e8; box-shadow: 0 0 0 4px rgba(127, 182, 232, 0.3);
+  animation: edit-hint-drag 1.8s ease-in-out infinite;
+}
+.edit-hint-hand-wrap { position: absolute; left: 18px; top: 23px; animation: edit-hint-drag 1.8s ease-in-out infinite; }
+.edit-hint-hand {
+  display: block; width: 30px; height: 30px;
+  fill: #fff; stroke: var(--ink); stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round;
+  animation: edit-hint-bob 0.6s ease-in-out infinite alternate;
+}
+.edit-hint-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 6px; font-family: var(--font-ui); font-size: 0.82rem; font-weight: 500; color: #fff; }
+.edit-hint-list li { display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.edit-hint-list svg { width: 16px; height: 16px; flex: none; fill: none; stroke: #9cc8f0; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; }
+@keyframes edit-hint-in { from { opacity: 0; } to { opacity: 1; } }
+/* Two flashes: the veil lightens and its edge glows, then settles. */
+@keyframes edit-hint-flash {
+  0%, 100% { background: rgba(23, 32, 44, 0.72); box-shadow: inset 0 0 0 0 rgba(127, 182, 232, 0); }
+  50% { background: rgba(23, 32, 44, 0.5); box-shadow: inset 0 0 0 3px rgba(127, 182, 232, 0.85); }
+}
+@keyframes edit-hint-drag {
+  0%, 15% { transform: translate(0, 0); }
+  60%, 75% { transform: translate(34px, -12px); }
+  100% { transform: translate(0, 0); }
+}
+@keyframes edit-hint-bob { from { transform: translate(0, 0) rotate(0deg); } to { transform: translate(1px, -3px) rotate(-6deg); } }
+@media (prefers-reduced-motion: reduce) {
+  .edit-hint, .edit-hint-dot, .edit-hint-hand-wrap, .edit-hint-hand { animation: none; }
+}
 .demo-stage { min-width: 0; }
+.demo-view { grid-column: 1 / -1; display: grid; grid-template-columns: minmax(0, 1fr) 290px; gap: 24px; }
 .demo-side { display: flex; flex-direction: column; gap: 16px; font-size: 0.92rem; }
 
 .plot { width: 100%; background: #fff; border-radius: 6px; box-shadow: inset 0 0 0 1px var(--rule); touch-action: none; }
 .plot-kernel { height: 340px; }
-.plot-scene { aspect-ratio: 1 / 1; height: auto; cursor: grab; }
-.plot-profile { height: 260px; }
+.plot-scene { aspect-ratio: 1 / 1; height: auto; }
+.plot-scene[data-panel="scene"] { cursor: grab; }
 .plot-race { height: 170px; }
 .plot-race + .plot-race { margin-top: 10px; }
 .plot-loss { height: 170px; }
 
-.surfel-layout { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr); gap: 16px; align-items: start; }
+/* The fan keeps its own aspect (its view box is about 560 x 336 mm), so
+   it is never squeezed into the square scene's shape. */
+.plot-fan { aspect-ratio: 5 / 3; height: auto; }
+.plot-profile { height: 160px; }
+.surfel-profile { margin-top: 14px; }
+/* Surfel demo: a fixed-width fan and side column, centred in the panel, so
+   the figure does not grow with the page width. */
+#demo-surfel { grid-template-columns: 280px minmax(0, 560px); justify-content: center; column-gap: 32px; }
+/* A flatter scene canvas keeps the whole demo within one screen height. */
+#demo-surfel .plot-scene { aspect-ratio: 6 / 5; }
+#demo-surfel .demo-side { gap: 12px; }
+/* Material legend: the same colours the surfels use in every panel. */
+.mat-dot { display: inline-block; width: 9px; height: 9px; border-radius: 50%; background: var(--c); margin-right: 6px; vertical-align: 0; box-shadow: 0 0 0 1px rgba(255, 255, 255, 0.7); }
+#demo-surfel .bar-fill { background: var(--sel, #7fb0d6); opacity: 0.6; }
+#demo-surfel .bar-total .bar-fill { background: var(--sel, var(--dir)); opacity: 1; }
 
 .pair { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
 .trio { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
@@ -256,6 +360,28 @@ input[type="range"] { width: 100%; accent-color: var(--dir); margin: 0; }
   padding: 5px 10px; border-radius: 5px; cursor: pointer;
 }
 .seg button[aria-pressed="true"] { background: var(--ink); color: #fff; }
+/* Sliding pill (page.js): with it, pressed buttons drop their own fill and
+   the pill moves under them; without JS the plain fill above still works. */
+.seg.has-pill { position: relative; }
+.seg-pill {
+  position: absolute; left: 0; top: 0; z-index: 0; border-radius: 5px;
+  background: var(--ink); pointer-events: none;
+}
+.seg.pill-ready .seg-pill { transition: transform 0.26s cubic-bezier(0.3, 0.7, 0.2, 1), width 0.26s cubic-bezier(0.3, 0.7, 0.2, 1), opacity 0.15s; }
+.seg.has-pill button { position: relative; z-index: 1; transition: color 0.2s; }
+.seg.has-pill button[aria-pressed="true"] { background: transparent; }
+
+/* Switched-in views fade up; the run icon pops when it changes. */
+.view-enter { animation: view-in 0.28s ease; }
+@keyframes view-in { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+.icon-btn.icon-swap svg { animation: icon-swap 0.24s ease; }
+@keyframes icon-swap { from { transform: scale(0.55) rotate(-40deg); opacity: 0.3; } to { transform: none; opacity: 1; } }
+.icon-btn { transition: transform 0.1s ease; }
+.icon-btn:active:not(:disabled) { transform: scale(0.93); }
+@media (prefers-reduced-motion: reduce) {
+  .seg.pill-ready .seg-pill, .seg.has-pill button, .icon-btn { transition: none; }
+  .view-enter, .icon-btn.icon-swap svg { animation: none; }
+}
 .seg button:disabled { opacity: 0.4; cursor: default; }
 
 .btn {
@@ -267,9 +393,6 @@ input[type="range"] { width: 100%; accent-color: var(--dir); margin: 0; }
 }
 .btn:hover { box-shadow: inset 0 0 0 1px var(--muted); }
 .btn:disabled { opacity: 0.45; cursor: default; }
-.btn-primary { background: var(--dir); color: #fff; box-shadow: none; }
-.btn-primary:hover { background: #1f5590; box-shadow: none; }
-.row { display: flex; flex-wrap: wrap; gap: 8px; }
 
 .check { display: flex; gap: 8px; align-items: flex-start; font-size: 0.88rem; cursor: pointer; }
 .check input { accent-color: var(--dir); margin-top: 3px; }
@@ -279,8 +402,6 @@ input[type="range"] { width: 100%; accent-color: var(--dir); margin: 0; }
 .readout dt { color: var(--muted); font-size: 0.85rem; }
 .readout dd { margin: 0; font-weight: 600; font-variant-numeric: tabular-nums; text-align: right; }
 
-.status { margin: 0; font-size: 0.9rem; line-height: 1.5; min-height: 3em; }
-.note { margin: 0; font-size: 0.82rem; line-height: 1.5; color: var(--muted); }
 
 .bars { display: grid; gap: 7px; }
 .bar { display: grid; grid-template-columns: 1fr 70px 44px; align-items: center; gap: 8px; font-size: 0.82rem; }
@@ -355,9 +476,10 @@ tfoot th, tfoot td { font-weight: 700; border-bottom: 0; border-top: 1px solid v
 
 @media (max-width: 900px) {
   .demo { grid-template-columns: 1fr; }
-  .surfel-layout { grid-template-columns: 1fr; }
-  .plot-scene { max-width: 420px; }
+  .demo-view { grid-template-columns: 1fr; }
   .split, .split-even { grid-template-columns: 1fr; }
+  #demo-surfel { grid-template-columns: minmax(0, 560px); }
+  #demo-surfel .plot-scene { max-width: 320px; }
 }
 
 @media (max-width: 560px) {
@@ -368,12 +490,11 @@ tfoot th, tfoot td { font-weight: 700; border-bottom: 0; border-top: 1px solid v
   .demo { padding: 14px; margin-left: calc(-1 * var(--gutter) + 6px); margin-right: calc(-1 * var(--gutter) + 6px); }
   .pair { grid-template-columns: 1fr; }
   .trio { grid-template-columns: 1fr 1fr; }
-  .title-sub { font-size: 1.35rem; }
   .authors, .venue { font-size: 1.1rem; }
   .eq-main { font-size: 0.74rem; }
   .plot-kernel { height: 260px; }
   .thz-keys { grid-template-columns: 1fr; gap: 2px; }
   .teaser-flow { display: none; }
   .teaser-labels { display: none; }
-  .trace figcaption { text-align: left; }
+  .trace p { text-align: left; }
 }
