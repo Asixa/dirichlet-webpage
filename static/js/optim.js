@@ -1,9 +1,6 @@
-// Optimization demos.
-//   1. Landscape: the variable-projected loss of a single Dirichlet splat
-//      against a single reflector. Gradient descent stalls in sidelobe
-//      minima; the residual certificate finds the true peak in one scan.
-//   2. Race: AdamW vs. a compact DSFW (VarPro + certificate replacement +
-//      Levenberg-Marquardt sliding) on a cold-started 1D sparse scene.
+// Optimization demo: AdamW vs. a compact DSFW (VarPro + certificate
+// replacement + Levenberg-Marquardt sliding) on a cold-started 1D sparse
+// scene.
 "use strict";
 
 // ---------------------------------------------------------------------------
@@ -159,169 +156,7 @@ const Model1D = (() => {
 })();
 
 // ---------------------------------------------------------------------------
-// Demo 1: single-splat landscape.
-// ---------------------------------------------------------------------------
-(() => {
-  const root = document.getElementById("demo-landscape");
-  if (!root) return;
-  const canvas = root.querySelector("canvas");
-  const status = root.querySelector('[data-out="status"]');
-  const certBtn = root.querySelector('[data-action="certificate"]');
-
-  const N = 32, MU = 21.3;
-  const y = Model1D.synth([MU], new Float64Array([1, 0]), N);
-  const GRID = Array.from({ length: 641 }, (_, i) => (i / 640) * N);
-  // With one splat, VarPro gives F(c) = 1 - |<a(c), y>|^2 / (||a||^2 ||y||^2),
-  // which is 1 - (certificate / ||y||)^2: same scan, read two ways.
-  const cert = Model1D.certificate(y, N, GRID);
-  let ynorm = 0;
-  for (let k = 0; k < 2 * N; k++) ynorm += y[k] * y[k];
-  ynorm = Math.sqrt(ynorm);
-  const F = cert.map((s) => 1 - (s / ynorm) ** 2);
-  const Fat = (c) => {
-    const s = Model1D.certificate(y, N, [c])[0];
-    return 1 - (s / ynorm) ** 2;
-  };
-
-  let ball = null;      // { c, trail: [] }
-  let scan = null;      // certificate sweep progress in [0, 1]
-  let anim = null;
-
-  function draw() {
-    const { ctx, w, h } = DS.fitCanvas(canvas);
-    const L = 44, R = 12, T = 16, B = 30, gap = 40;
-    const pw = w - L - R;
-    const h1 = (h - T - B - gap) * 0.62, h2 = h - T - B - gap - h1;
-    const xOf = (c) => L + (c / N) * pw;
-    // Far sidelobe valleys are only 0.1-2% deep in F, invisible on a linear
-    // axis. -10 log10(1 - F) is monotone in F, so every minimum stays where
-    // it is; F = 0 sits at the panel bottom and F -> 1 at the top (40 dB).
-    const tr = (v) => Math.min(40, -10 * Math.log10(Math.max(1e-4, 1 - v)));
-    const yFv = (v) => T + h1 - (tr(v) / 40) * h1;
-    const top2 = T + h1 + gap;
-    const yS = (v) => top2 + (1 - v / ynorm) * h2;
-    const muted = DS.token("--muted"), rule = DS.token("--rule"), ink = DS.token("--ink");
-    const dir = DS.token("--dir"), gau = DS.token("--gau");
-    ctx.clearRect(0, 0, w, h);
-    ctx.font = "11px 'Hanken Grotesk', system-ui, sans-serif";
-
-    // Panel labels.
-    ctx.fillStyle = muted; ctx.textAlign = "left"; ctx.textBaseline = "bottom";
-    const narrow = pw < 480;
-    ctx.fillText(narrow ? "Loss F(c), lower is better" : "Loss F(c) of one splat at centre c (lower is better)", L, T - 3);
-    ctx.fillText(narrow ? "Certificate s(x)" : "Certificate s(x): where a new splat would reduce the residual most", L, top2 - 3);
-
-    // Frames.
-    ctx.strokeStyle = rule; ctx.lineWidth = 1;
-    ctx.strokeRect(L + 0.5, T + 0.5, pw, h1);
-    ctx.strokeRect(L + 0.5, top2 + 0.5, pw, h2);
-    ctx.textAlign = "right"; ctx.textBaseline = "middle";
-    for (const v of [0, 0.9, 0.99, 0.999]) ctx.fillText(String(v), L - 6, yFv(v));
-
-    ctx.beginPath();
-    GRID.forEach((c, i) => { const yy = yFv(F[i]); if (i === 0) ctx.moveTo(xOf(c), yy); else ctx.lineTo(xOf(c), yy); });
-    ctx.strokeStyle = ink; ctx.lineWidth = 1.6; ctx.stroke();
-
-    // True reflector.
-    ctx.strokeStyle = muted; ctx.setLineDash([3, 3]);
-    ctx.beginPath(); ctx.moveTo(xOf(MU), T); ctx.lineTo(xOf(MU), top2 + h2); ctx.stroke();
-    ctx.setLineDash([]);
-    ctx.fillStyle = muted; ctx.textAlign = "center"; ctx.textBaseline = "top";
-    ctx.fillText("true reflector", xOf(MU), top2 + h2 + 4);
-
-    // Certificate curve, revealed by the sweep.
-    const upto = scan === null ? 0 : scan;
-    if (upto > 0) {
-      ctx.beginPath();
-      const last = Math.floor(upto * (GRID.length - 1));
-      for (let i = 0; i <= last; i++) {
-        const yy = yS(cert[i]);
-        if (i === 0) ctx.moveTo(xOf(GRID[i]), yy); else ctx.lineTo(xOf(GRID[i]), yy);
-      }
-      ctx.strokeStyle = dir; ctx.lineWidth = 1.6; ctx.stroke();
-      if (upto < 1) {
-        ctx.strokeStyle = dir; ctx.globalAlpha = 0.35;
-        ctx.beginPath(); ctx.moveTo(xOf(GRID[last]), top2); ctx.lineTo(xOf(GRID[last]), top2 + h2); ctx.stroke();
-        ctx.globalAlpha = 1;
-      }
-    }
-
-    // Ball and its gradient-descent trail.
-    if (ball) {
-      ctx.strokeStyle = gau; ctx.lineWidth = 1.2;
-      ctx.beginPath();
-      ball.trail.forEach((c, i) => { const yy = yFv(Fat(c)); if (i === 0) ctx.moveTo(xOf(c), yy); else ctx.lineTo(xOf(c), yy); });
-      ctx.stroke();
-      const yy = yFv(Fat(ball.c));
-      ctx.fillStyle = ball.kind === "cert" ? dir : gau;
-      ctx.beginPath(); ctx.arc(xOf(ball.c), yy - 6, 6, 0, 2 * Math.PI); ctx.fill();
-    }
-
-    // x ticks.
-    ctx.fillStyle = muted; ctx.textAlign = "center"; ctx.textBaseline = "top";
-    for (let k = 0; k <= N; k += 4) ctx.fillText(String(k), xOf(k), T + h1 + 3);
-  }
-
-  function runDescent(c0) {
-    cancelAnimationFrame(anim);
-    ball = { c: c0, trail: [c0], kind: "gd" };
-    // lr 0.15 converges inside the main lobe without oscillating (checked
-    // offline); larger steps bounce across the peak and blur the point.
-    const STEPS = 300, lr = 0.15, h = 1e-3;
-    // Reduced motion: run every step in one frame instead of 3 per frame.
-    const perFrame = DS.prefersReducedMotion() ? STEPS : 3;
-    let it = 0;
-    const tick = () => {
-      for (let s = 0; s < perFrame && it < STEPS; s++, it++) {
-        const g = (Fat(ball.c + h) - Fat(ball.c - h)) / (2 * h);
-        ball.c = Math.min(N - 0.01, Math.max(0.01, ball.c - lr * g));
-        ball.trail.push(ball.c);
-      }
-      draw();
-      const done = it >= STEPS;
-      status.textContent = !done
-        ? `Gradient descent, step ${it}`
-        : Math.abs(ball.c - MU) < 0.1
-          ? `Gradient descent reached the reflector at c = ${ball.c.toFixed(2)}, because it started inside the main lobe.`
-          : `Gradient descent stopped at c = ${ball.c.toFixed(2)}, a sidelobe minimum. The reflector is at ${MU.toFixed(2)}.`;
-      if (!done) anim = requestAnimationFrame(tick);
-    };
-    tick();
-  }
-
-  function runCertificate() {
-    cancelAnimationFrame(anim);
-    scan = 0;
-    const tick = () => {
-      scan = Math.min(1, scan + (DS.prefersReducedMotion() ? 1 : 0.025));
-      draw();
-      if (scan < 1) { anim = requestAnimationFrame(tick); return; }
-      let best = 0;
-      for (let i = 1; i < cert.length; i++) if (cert[i] > cert[best]) best = i;
-      ball = { c: GRID[best], trail: [GRID[best]], kind: "cert" };
-      draw();
-      status.textContent = `The certificate peaks at x = ${GRID[best].toFixed(2)}. One global scan places the splat on the reflector, with no descent.`;
-    };
-    tick();
-  }
-
-  canvas.addEventListener("click", (e) => {
-    const rect = canvas.getBoundingClientRect();
-    const c = ((e.clientX - rect.left - 44) / (rect.width - 56)) * N;
-    if (c < 0 || c > N) return;
-    runDescent(c);
-  });
-  canvas.addEventListener("keydown", (e) => {
-    if (e.key !== "Enter" && e.key !== " ") return;
-    e.preventDefault();
-    runDescent(4 + Math.random() * 10);
-  });
-  certBtn.addEventListener("click", runCertificate);
-  DS.onResize(canvas, draw);
-})();
-
-// ---------------------------------------------------------------------------
-// Demo 2: AdamW vs DSFW race.
+// Demo: AdamW vs DSFW race.
 // ---------------------------------------------------------------------------
 (() => {
   const root = document.getElementById("demo-race");
@@ -605,6 +440,6 @@ const Model1D = (() => {
   });
   DS.whenVisible(root, (visible) => { if (!visible && running) { running = false; runBtn.textContent = "Resume"; } });
 
-  newScene();
-  DS.onResize(root, drawAll);
+  // The first scene is built (and drawn) only when the demo nears the viewport.
+  DS.onResize(root, () => { if (truth) drawAll(); else newScene(); });
 })();

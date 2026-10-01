@@ -203,11 +203,26 @@ const DS = (() => {
     };
   }
 
-  // Run fn once now and again whenever the element changes size.
+  // Run fn the first time el comes within 400px of the viewport, then again
+  // whenever el changes size. Deferring the first run keeps off-screen demos
+  // from rendering (and forcing layout) during page load.
   function onResize(el, fn) {
-    if ("ResizeObserver" in window) new ResizeObserver(() => fn()).observe(el);
-    else window.addEventListener("resize", fn);
-    fn();
+    let started = false;
+    const start = () => {
+      if (started) return;
+      started = true;
+      fn();
+      if ("ResizeObserver" in window) {
+        // ResizeObserver reports once on observe(); fn already ran, skip it.
+        let initial = true;
+        new ResizeObserver(() => { if (initial) { initial = false; return; } fn(); }).observe(el);
+      } else window.addEventListener("resize", fn);
+    };
+    if (!("IntersectionObserver" in window)) { start(); return; }
+    const io = new IntersectionObserver((entries) => {
+      if (entries.some((e) => e.isIntersecting)) { io.disconnect(); start(); }
+    }, { rootMargin: "400px 0px" });
+    io.observe(el);
   }
 
   // Only animate while the element is on screen; saves CPU on long pages.

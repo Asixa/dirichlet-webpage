@@ -12,10 +12,11 @@
   <meta name="twitter:card" content="summary_large_image">
   <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Cpath d='M2 22h3l2-6 2 10 3-22 3 22 2-10 2 6h11' fill='none' stroke='%232b66a6' stroke-width='2.4' stroke-linejoin='round'/%3E%3C/svg%3E">
 
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600;700&family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,600;1,8..60,400&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+  <!-- Fonts and KaTeX are self-hosted: a slow or blocked CDN must not hold up first paint. -->
+  <link rel="preload" href="static/vendor/fonts/HankenGrotesk-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="preload" href="static/vendor/fonts/SourceSerif4-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
+  <link rel="stylesheet" href="static/vendor/fonts.css">
+  <link rel="stylesheet" href="static/vendor/katex/katex.min.css">
   <link rel="stylesheet" href="static/css/style.css">
 </head>
 <body>
@@ -74,7 +75,9 @@
   <h2 id="teaser-title" class="visually-hidden">Teaser</h2>
   <figure>
     <div class="teaser-frame">
-      <img src="static/images/teaser.jpg" width="3000" height="604"
+      <img src="static/images/teaser.jpg" width="3000" height="604" fetchpriority="high"
+           srcset="static/images/teaser-1200.webp 1200w, static/images/teaser-2000.webp 2000w"
+           sizes="(max-width: 1140px) 100vw, 1100px"
            alt="Pipeline from left to right: a bunny scanned by a coherent sensor, its measured spectrum, a stack of Fourier-space slices, one-dimensional Dirichlet kernels for three surfels, and the reconstructed bunny made of oriented surfel splats.">
       <!-- Forward/backward harpoons from the paper's teaser, centred at 73.5% of the width. -->
       <div class="teaser-flow" aria-hidden="true">
@@ -93,9 +96,6 @@
       <li style="--x: 73%">Dirichlet</li>
       <li style="--x: 91%">Surfel splats</li>
     </ol>
-    <figcaption>
-      <strong>Dirichlet Splatting</strong> renders coherent wave-based measurements with a primitive whose spectral footprint is the exact Dirichlet kernel of a finite-window discrete Fourier transform. A coherent appearance model makes each surfel behave like a real surface element rather than an isotropic point reflector. A tailored sliding Frank&ndash;Wolfe solver recovers reflector geometry from cold starts where Gaussian-splat baselines diverge.
-    </figcaption>
   </figure>
 </section>
 
@@ -313,22 +313,6 @@
   <h2 id="dsfw">Optimizing on an oscillating landscape</h2>
   <div class="prose">
     <p>The oscillation that makes the kernel faithful also makes the loss rugged. A rectangular window gives &minus;13&nbsp;dB sidelobes, and each sidelobe peak is a gradient null. A splat that starts one main-lobe width from the truth descends into the nearest sidelobe and stays there.</p>
-    <p class="howto">Click anywhere on the upper curve to drop a splat there and run gradient descent. Then press <em>Scan certificate</em>.</p>
-  </div>
-
-  <div class="demo demo-wide" id="demo-landscape">
-    <div class="demo-stage">
-      <canvas class="plot plot-landscape" tabindex="0" role="img"
-              aria-label="Loss landscape of one Dirichlet splat and the residual certificate. Click to start gradient descent; Enter starts from a random point."></canvas>
-    </div>
-    <div class="demo-side">
-      <button type="button" class="btn btn-primary" data-action="certificate">Scan certificate</button>
-      <p class="status" data-out="status" aria-live="polite">Click the loss curve to start gradient descent.</p>
-      <p class="note">With one splat, the loss after solving its amplitude is \(F(c) = 1 - s(c)^2/\|\mathbf y\|^2\). The same curve read locally traps gradient descent; read globally, its maximum is the answer.</p>
-    </div>
-  </div>
-
-  <div class="prose">
     <p>Dirichlet Sliding Frank&ndash;Wolfe (DSFW) handles three problems at once. Sidelobe minima trap local search. Amplitude shrinkage lets a misplaced splat lower the loss by fading instead of moving. Splats within a kernel width are coupled, and diagonal preconditioners like Adam cannot make the joint move that untangles them. Each DSFW outer step does four things, in order:</p>
     <ol class="steps">
       <li><strong>Variable projection.</strong> The model is linear in the amplitudes, so we solve them in closed form, \(\mathbf b^\star = (G + \lambda I)^{-1} q\), and optimize centres alone. Amplitude shrinkage disappears as a degree of freedom.</li>
@@ -532,8 +516,8 @@
   </div>
 </footer>
 
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/contrib/auto-render.min.js"></script>
+<script defer src="static/vendor/katex/katex.min.js"></script>
+<script defer src="static/vendor/katex/auto-render.min.js"></script>
 <script defer src="static/js/dsp.js"></script>
 <script defer src="static/js/hero.js"></script>
 <script defer src="static/js/kernel.js"></script>

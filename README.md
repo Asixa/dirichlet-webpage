@@ -33,7 +33,8 @@ Pages on the default branch.
 | `static/js/optim.js` | Loss landscape + AdamW vs. DSFW race |
 | `static/js/fidelity.js` | 1D/2D Dirichlet vs. Gaussian fits to a random scene |
 | `static/js/page.js` | KaTeX, bar charts, bunny slider, BibTeX copy |
-| `static/images/` | Figures exported from `Dirichlet_Arxiv/figures` |
+| `static/images/` | Figures exported from `Dirichlet_Arxiv/figures`; teaser also as 1200/2000 px WebP |
+| `static/vendor/` | Self-hosted web fonts (latin subsets) and KaTeX 0.16.11, so first paint never waits on a CDN |
 
 The interactive figures are simplified 1D/2D browser re-implementations for
 illustration; numbers quoted on the page come from the paper.

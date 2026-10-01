@@ -123,8 +123,6 @@ a:hover { text-decoration-thickness: 2px; }
   font-family: var(--font-ui); font-weight: 600; white-space: nowrap;
   font-size: clamp(0.62rem, 1.45vw, 1rem);
 }
-.teaser figcaption { max-width: var(--measure); margin: 18px auto 0; color: var(--muted); font-size: 1rem; }
-.teaser figcaption strong { color: var(--ink); font-weight: 600; }
 
 /* ---------------- Sections and prose ---------------- */
 
@@ -207,7 +205,6 @@ a:hover { text-decoration-thickness: 2px; }
 .plot-kernel { height: 340px; }
 .plot-scene { aspect-ratio: 1 / 1; height: auto; cursor: grab; }
 .plot-profile { height: 260px; }
-.plot-landscape { height: 380px; cursor: crosshair; }
 .plot-race { height: 170px; }
 .plot-race + .plot-race { margin-top: 10px; }
 .plot-loss { height: 170px; }
@@ -375,7 +372,6 @@ tfoot th, tfoot td { font-weight: 700; border-bottom: 0; border-top: 1px solid v
   .authors, .venue { font-size: 1.1rem; }
   .eq-main { font-size: 0.74rem; }
   .plot-kernel { height: 260px; }
-  .plot-landscape { height: 320px; }
   .thz-keys { grid-template-columns: 1fr; gap: 2px; }
   .teaser-flow { display: none; }
   .teaser-labels { display: none; }
