@@ -37,7 +37,6 @@ branch, and add a DNS `CNAME` record `dirichlet` -> `<user>.github.io`; the
 | `index.html` | Page content |
 | `static/css/style.css` | Styles; colour tokens at the top |
 | `static/js/dsp.js` | Dirichlet kernel, colormap, small complex solvers |
-| `static/js/hero.js` | PSF strip under the teaser |
 | `static/js/kernel.js` | Kernel explorer (Dirichlet vs. Gaussian) |
 | `static/js/interference.js` | 2D coherent interference playground |
 | `static/js/surfel.js` | Surfel appearance model (V, Fresnel, path loss) and range-angle map |

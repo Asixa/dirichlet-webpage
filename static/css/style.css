@@ -98,10 +98,6 @@ a:hover { text-decoration-thickness: 2px; }
 .pill.is-pending { background: transparent; color: var(--muted); box-shadow: inset 0 0 0 1px var(--panel-edge); cursor: default; }
 .pill.is-pending::after { content: "soon"; font-weight: 500; font-size: 0.75rem; color: var(--muted); margin-left: 2px; }
 
-/* Live PSF strip under the teaser: kept short so it reads as part of the figure. */
-.trace { margin: 14px 0 0; }
-.trace canvas { width: 100%; height: 44px; }
-.trace p { margin: 0; font-family: var(--font-ui); font-size: 0.78rem; color: var(--muted); text-align: right; }
 .noscript { font-family: var(--font-ui); color: var(--muted); }
 
 /* ---------------- Teaser ---------------- */
@@ -510,5 +506,4 @@ tfoot th, tfoot td { font-weight: 700; border-bottom: 0; border-top: 1px solid v
   .thz-row { flex-direction: column; }
   .teaser-flow { display: none; }
   .teaser-labels { display: none; }
-  .trace p { text-align: left; }
 }
