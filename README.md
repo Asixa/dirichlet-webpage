@@ -31,6 +31,7 @@ Pages on the default branch.
 | `static/js/interference.js` | 2D coherent interference playground |
 | `static/js/surfel.js` | Surfel appearance model (V, Fresnel, path loss) |
 | `static/js/optim.js` | Loss landscape + AdamW vs. DSFW race |
+| `static/js/fidelity.js` | 1D/2D Dirichlet vs. Gaussian fits to a random scene |
 | `static/js/page.js` | KaTeX, bar charts, bunny slider, BibTeX copy |
 | `static/images/` | Figures exported from `Dirichlet_Arxiv/figures` |
 

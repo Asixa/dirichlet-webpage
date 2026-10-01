@@ -1,4 +1,4 @@
-// Page glue: math rendering, static charts, the bunny comparison slider,
+// Page glue: math rendering, the bunny comparison slider,
 // BibTeX copy, and placeholder links.
 "use strict";
 
@@ -12,32 +12,6 @@
       ],
       throwOnError: false,
     });
-  }
-
-  // Horizontal bar charts. data-v is the value; log charts map
-  // log10(v) from [data-min, data-max] onto the bar width.
-  for (const list of document.querySelectorAll(".hbars")) {
-    const isLog = list.classList.contains("hbars-log");
-    const lo = +list.dataset.min || 0, hi = +list.dataset.max;
-    for (const li of list.children) {
-      const v = +li.dataset.v;
-      const t = isLog ? (Math.log10(v) - lo) / (hi - lo) : v / hi;
-      li.style.setProperty("--w", `${Math.max(0, Math.min(1, t)) * 100}%`);
-      // Long bars carry their label inside, or it would overflow on phones.
-      if (t > 0.7) li.classList.add("label-inside");
-      const label = document.createElement("b");
-      label.textContent = isLog ? formatSci(v) : String(v);
-      li.appendChild(label);
-    }
-  }
-  function formatSci(v) {
-    const e = Math.floor(Math.log10(v));
-    const m = v / 10 ** e;
-    return `${m.toFixed(2)}×10${superscript(e)}`;
-  }
-  function superscript(n) {
-    const map = { "-": "⁻", 0: "⁰", 1: "¹", 2: "²", 3: "³", 4: "⁴", 5: "⁵", 6: "⁶", 7: "⁷", 8: "⁸", 9: "⁹" };
-    return String(n).split("").map((c) => map[c]).join("");
   }
 
   // Bunny before/after slider with view tabs.

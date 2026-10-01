@@ -22,17 +22,19 @@
 
 <header class="masthead">
   <div class="wrap">
-    <h1 class="title">Dirichlet Splatting</h1>
-    <p class="subtitle">Differentiable Rendering for Wave-Based Inverse Problems</p>
+    <h1 class="title">
+      <span class="title-main">Dirichlet Splatting:</span>
+      <span class="title-sub">Differentiable Rendering for Wave-Based Inverse Problems</span>
+    </h1>
 
     <ul class="authors">
-      <li><a href="https://orcid.org/0000-0002-1989-4935">Xingyu Chen</a></li>
-      <li><a href="https://orcid.org/0000-0002-9550-7423">Wuqiong Zhao</a></li>
-      <li><a href="https://orcid.org/0000-0001-9688-8056">Xinyu Zhang</a></li>
-      <li><a href="https://cseweb.ucsd.edu/~tzli/">Tzu-Mao Li</a></li>
+      <li><a href="https://orcid.org/0000-0002-1989-4935">Xingyu Chen</a><sup>1</sup></li>
+      <li><a href="https://orcid.org/0000-0002-9550-7423">Wuqiong Zhao</a><sup>1</sup></li>
+      <li><a href="https://orcid.org/0000-0001-9688-8056">Xinyu Zhang</a><sup>1</sup></li>
+      <li><a href="https://cseweb.ucsd.edu/~tzli/">Tzu-Mao Li</a><sup>1</sup></li>
     </ul>
-    <p class="affiliation">University of California San Diego</p>
-    <p class="venue">SIGGRAPH Asia 2026 <span class="venue-sep">/</span> ACM Transactions on Graphics 45(6)</p>
+    <p class="affiliation"><sup>1</sup>University of California San Diego</p>
+    <p class="venue">ACM Transactions on Graphics (Proceedings of SIGGRAPH Asia 2026)</p>
 
     <nav class="links" aria-label="Paper resources">
       <a class="pill" href="static/pdf/Dirichlet_Splatting.pdf">
@@ -115,6 +117,23 @@
   </div>
 
   <div class="demo" id="demo-kernel">
+    <div class="demo-bar">
+      <div class="tool">
+        <span class="tool-label" id="kv-label">Vertical axis</span>
+        <div class="seg" data-group="view" role="group" aria-labelledby="kv-label">
+          <button type="button" value="db" aria-pressed="true">dB</button>
+          <button type="button" value="lin" aria-pressed="false">Linear</button>
+          <button type="button" value="reim" aria-pressed="false">Re / Im</button>
+        </div>
+      </div>
+      <div class="tool">
+        <span class="tool-label" id="kw-label">Window</span>
+        <div class="seg" data-group="win" role="group" aria-labelledby="kw-label">
+          <button type="button" value="rect" aria-pressed="true">Rectangular</button>
+          <button type="button" value="hann" aria-pressed="false">Hann</button>
+        </div>
+      </div>
+    </div>
     <div class="demo-stage">
       <canvas class="plot plot-kernel" role="img" aria-label="Kernel plot: Dirichlet kernel, matched Gaussian, and recorded bin samples."></canvas>
       <ul class="legend">
@@ -132,21 +151,6 @@
         <span class="field-label">Window length N <output data-out="N">16</output></span>
         <input type="range" name="N" min="8" max="64" step="1" value="16">
       </label>
-      <div class="field">
-        <span class="field-label" id="kv-label">Vertical axis</span>
-        <div class="seg" data-group="view" role="group" aria-labelledby="kv-label">
-          <button type="button" value="db" aria-pressed="true">dB</button>
-          <button type="button" value="lin" aria-pressed="false">Linear</button>
-          <button type="button" value="reim" aria-pressed="false">Re / Im</button>
-        </div>
-      </div>
-      <div class="field">
-        <span class="field-label" id="kw-label">Window</span>
-        <div class="seg" data-group="win" role="group" aria-labelledby="kw-label">
-          <button type="button" value="rect" aria-pressed="true">Rectangular</button>
-          <button type="button" value="hann" aria-pressed="false">Hann</button>
-        </div>
-      </div>
       <dl class="readout">
         <div><dt>Recorded energy outside the main lobe, Dirichlet</dt><dd data-out="sidelobe">–</dd></div>
         <div><dt>Same for the Gaussian</dt><dd data-out="gauss">–</dd></div>
@@ -165,6 +169,22 @@
   </div>
 
   <div class="demo" id="demo-interference">
+    <div class="demo-bar">
+      <div class="tool">
+        <span class="tool-label" id="is-label">Colour scale</span>
+        <div class="seg" data-group="scale" role="group" aria-labelledby="is-label">
+          <button type="button" value="lin" aria-pressed="true">Linear</button>
+          <button type="button" value="db" aria-pressed="false">dB (40 dB range)</button>
+        </div>
+      </div>
+      <div class="tool">
+        <span class="tool-label" id="ib-label">Sampling</span>
+        <div class="seg" data-group="sampling" role="group" aria-labelledby="ib-label">
+          <button type="button" value="cont" aria-pressed="true">Continuous</button>
+          <button type="button" value="bins" aria-pressed="false">Sensor bins</button>
+        </div>
+      </div>
+    </div>
     <div class="demo-stage">
       <div class="pair">
         <figure class="panel">
@@ -193,20 +213,6 @@
       <div class="row">
         <button type="button" class="btn" data-action="remove">Remove reflector</button>
         <button type="button" class="btn" data-action="reset">Reset</button>
-      </div>
-      <div class="field">
-        <span class="field-label" id="is-label">Colour scale</span>
-        <div class="seg" data-group="scale" role="group" aria-labelledby="is-label">
-          <button type="button" value="lin" aria-pressed="true">Linear</button>
-          <button type="button" value="db" aria-pressed="false">dB (40 dB range)</button>
-        </div>
-      </div>
-      <div class="field">
-        <span class="field-label" id="ib-label">Sampling</span>
-        <div class="seg" data-group="sampling" role="group" aria-labelledby="ib-label">
-          <button type="button" value="cont" aria-pressed="true">Continuous</button>
-          <button type="button" value="bins" aria-pressed="false">Sensor bins</button>
-        </div>
       </div>
       <p class="note">The grid is 16 &times; 16 bins. The DFT is periodic, so a reflector pushed past one edge re-enters at the other.</p>
     </div>
@@ -363,85 +369,99 @@
   <h2 id="results">Results</h2>
 
   <h3>The kernel is exact; Gaussians only approximate it</h3>
-  <div class="split">
-    <figure class="fig">
-      <img src="static/images/e1_forward_model_validation_gaussian_splat_count.png" width="1600" height="907" loading="lazy"
-           alt="Range profiles of three reflectors. Three Dirichlet splats match the ground truth exactly; Gaussian fits with 3, 8, 16, and 96 splats reach -6.1, -7.1, -8.4, and -30.1 dB error.">
-    </figure>
-    <div class="prose">
-      <p>Three Dirichlet primitives reproduce the sidelobe-rich range profile of three complex reflectors to the numerical floor, &minus;120&nbsp;dB normalized error. Gaussian controls improve only slowly with count: 3, 8, and 16 splats stay between &minus;6.1 and &minus;8.4&nbsp;dB, and even 96 splats, 32&times; more, reach only &minus;30.1&nbsp;dB. The gap is in the representation, not the optimizer.</p>
-      <p>The same kernel extends to the Doppler axis. On a moving three-reflector scene, the joint position&ndash;velocity model matches the FFT oracle to &minus;120&nbsp;dB and recovers every velocity on a 0.05&nbsp;m/s grid.</p>
-    </div>
+  <div class="prose">
+    <p>A handful of Dirichlet splats reproduce a coherent scene exactly, sidelobes included. Gaussians must spend many splats to approximate the same profile, and adding more improves the envelope only slowly. In the paper, three Dirichlet primitives reach the numerical floor (&minus;120&nbsp;dB normalized error) on a three-reflector range profile, while 96 Gaussians, 32&times; more, reach only &minus;30.1&nbsp;dB. The gap is in the representation, not the optimizer.</p>
+    <p class="howto">Each new ground truth places 2 to 4 random complex reflectors. Switch between a 1D range profile and a 2D spectrum, pick a Gaussian budget, and the page fits it live, minimizing the same magnitude error it reports: each Gaussian has a free centre and width (Levenberg&ndash;Marquardt) and a signed weight solved by least squares, so splats can also cancel. The Dirichlet fit uses one splat per reflector, placed by the residual certificate. Dots under each plot are splat centres.</p>
   </div>
 
-  <h3>Inverse fitting in signal space</h3>
-  <div class="prose">
-    <p>Every method fits splats to the same 2D Fourier-space target from the same cold start, budget, and loss. Only DSFW recovers the sidelobe field; the Gaussian columns reconstruct the silhouette alone. Labels give complex mean squared error.</p>
-  </div>
-  <figure class="fig fig-wide">
-    <a href="static/images/inverse_result_grid.jpg"><img src="static/images/inverse_result_grid.jpg" width="2400" height="1846" loading="lazy"
-         alt="Grid of six targets (single reflector, square, letters A and H, grid, two slabs) reconstructed by 3DGS, GSRF, WRF-GS, SGD, AdamW, L-BFGS, ours, and ground truth. Only ours matches the ground-truth sidelobe pattern."></a>
-  </figure>
-  <div class="split split-even">
-    <div>
-      <div class="chart" role="img" aria-label="Mean complex MSE over seven scenes, log scale. DSFW 6.71e-4; GSRF 4.43e-2; WRF-GS+ 4.38e-2; AdamW plus L-BFGS 5.97e-2; AdamW 6.06e-2; SGD 1.12e-1; 3DGS no-phase 1.92e-1; initialization 3.32e-1.">
-        <p class="chart-title">Mean complex MSE over the 7-scene benchmark, log scale, lower is better</p>
-        <ul class="hbars hbars-log" data-min="-4" data-max="0">
-          <li data-v="6.71e-4" class="is-ours"><span>DSFW (ours)</span></li>
-          <li data-v="4.38e-2"><span>WRF-GS+</span></li>
-          <li data-v="4.43e-2"><span>GSRF</span></li>
-          <li data-v="5.97e-2"><span>AdamW + L-BFGS</span></li>
-          <li data-v="6.06e-2"><span>Dirichlet + AdamW</span></li>
-          <li data-v="1.12e-1"><span>Dirichlet + SGD</span></li>
-          <li data-v="1.92e-1"><span>3DGS (no phase)</span></li>
-          <li data-v="3.32e-1" class="is-ref"><span>Initialization</span></li>
+  <div class="demo" id="demo-fit">
+    <div class="demo-bar">
+      <div class="tool">
+        <div class="seg" data-group="dim" role="group" aria-label="Dimension">
+          <button type="button" value="1d" aria-pressed="false">1D range profile</button>
+          <button type="button" value="2d" aria-pressed="true">2D spectrum</button>
+        </div>
+      </div>
+      <div class="tool">
+        <span class="tool-label" id="fc-label">Gaussians</span>
+        <div class="seg" data-group="count" role="group" aria-labelledby="fc-label">
+          <button type="button" value="3" aria-pressed="false">3</button>
+          <button type="button" value="8" aria-pressed="false">8</button>
+          <button type="button" value="16" aria-pressed="true">16</button>
+          <button type="button" value="32" aria-pressed="false">32</button>
+          <button type="button" value="64" aria-pressed="false">64</button>
+          <button type="button" value="96" aria-pressed="false">96</button>
+        </div>
+      </div>
+      <div class="tool">
+        <span class="tool-label" id="fs-label">Colour scale</span>
+        <div class="seg" data-group="scale" role="group" aria-labelledby="fs-label">
+          <button type="button" value="lin" aria-pressed="true">Linear</button>
+          <button type="button" value="db" aria-pressed="false">dB</button>
+        </div>
+      </div>
+      <button type="button" class="btn btn-primary tool-end" data-action="new">New ground truth</button>
+    </div>
+    <div class="demo-stage">
+      <div data-view="1d" hidden>
+        <canvas data-panel="dirichlet" class="plot plot-fit" role="img" aria-label="Ground-truth range profile in dB with the Dirichlet fit."></canvas>
+        <canvas data-panel="gaussian" class="plot plot-fit" role="img" aria-label="Ground-truth range profile in dB with the Gaussian fit."></canvas>
+        <ul class="legend">
+          <li><span class="swatch sw-gt"></span>Ground truth</li>
+          <li><span class="swatch sw-dir"></span>Dirichlet fit</li>
+          <li><span class="swatch sw-gau sw-solid"></span>Gaussian fit</li>
         </ul>
-        <div class="axis axis-log"><span>10<sup>&minus;4</sup></span><span>10<sup>&minus;3</sup></span><span>10<sup>&minus;2</sup></span><span>10<sup>&minus;1</sup></span><span>1</span></div>
+      </div>
+      <div data-view="2d">
+        <div class="trio">
+          <figure class="panel">
+            <div class="panel-box"><canvas data-panel="gt" class="heat"></canvas></div>
+            <figcaption>Ground truth</figcaption>
+          </figure>
+          <figure class="panel">
+            <div class="panel-box"><canvas data-panel="dirichlet" class="heat"></canvas></div>
+            <figcaption><span class="swatch sw-dir"></span><span data-out="dtitle">Dirichlet</span></figcaption>
+          </figure>
+          <figure class="panel">
+            <div class="panel-box"><canvas data-panel="gaussian" class="heat"></canvas></div>
+            <figcaption><span class="swatch sw-gau sw-solid"></span><span data-out="gtitle">Gaussian</span></figcaption>
+          </figure>
+        </div>
+        <div class="colorbar" aria-hidden="true"><span>low</span><i></i><span>high magnitude</span></div>
       </div>
     </div>
-    <figure class="fig">
-      <img src="static/images/basin_attraction.png" width="1600" height="794" loading="lazy"
-           alt="Success-rate heat maps over cold-start offsets up to 8 bins. DSFW succeeds on most offsets; AdamW succeeds only at the centre.">
-      <figcaption>Over a 33&times;33 grid of cold-start offsets up to 8 bins away, DSFW places every reflector within 0.1 bin on 77.4% of trials. Dirichlet + AdamW manages 0.07%.</figcaption>
-    </figure>
+    <div class="demo-side">
+      <dl class="readout">
+        <div><dt>Dirichlet magnitude NMSE</dt><dd data-out="dnmse">–</dd></div>
+        <div><dt>Dirichlet parameters</dt><dd data-out="dparams">–</dd></div>
+        <div><dt>Gaussian magnitude NMSE</dt><dd data-out="gnmse">–</dd></div>
+        <div><dt>Gaussian parameters</dt><dd data-out="gparams">–</dd></div>
+      </dl>
+      <p class="status" data-out="status" aria-live="polite"></p>
+      <p class="note" data-out="note"></p>
+    </div>
   </div>
 
-  <h3>Inverse imaging from raw signals</h3>
   <div class="prose">
-    <p>Here the input is a raw complex multi-aperture scan from a standard FMCW chain, and the output is a geometric support map scored against ground-truth occupancy. Only the raw-profile Dirichlet fit keeps thin and separated parts intact; Gaussian fits merge them into blobs. Labels give support-domain NMSE.</p>
-  </div>
-  <figure class="fig fig-wide">
-    <a href="static/images/plane2d_reconstruction_grid.jpg"><img src="static/images/plane2d_reconstruction_grid.jpg" width="2400" height="2155" loading="lazy"
-         alt="Seven planar targets (square, letters A, T, H, grid, scissors, pistol) reconstructed by back-projection, 3DGS, GSRF, WRF-GS+, GS+SFW, ours, and ground truth. Ours has the lowest error on every target."></a>
-  </figure>
-  <div class="chart chart-narrow" role="img" aria-label="Mean support NMSE over seven targets. Ours 0.136; GS+SFW 0.294; back-projection 0.387; 3DGS 0.389; WRF-GS+ 0.391; GSRF 0.406.">
-    <p class="chart-title">Mean support NMSE over 7 targets, lower is better</p>
-    <ul class="hbars" data-max="0.45">
-      <li data-v="0.136" class="is-ours"><span>Ours</span></li>
-      <li data-v="0.294"><span>GS+SFW</span></li>
-      <li data-v="0.387"><span>Back-projection</span></li>
-      <li data-v="0.389"><span>3DGS</span></li>
-      <li data-v="0.391"><span>WRF-GS+</span></li>
-      <li data-v="0.406"><span>GSRF</span></li>
-    </ul>
+    <p>The same kernel extends to the Doppler axis. On a moving three-reflector scene, the joint position&ndash;velocity model matches the FFT oracle to &minus;120&nbsp;dB and recovers every velocity on a 0.05&nbsp;m/s grid.</p>
   </div>
 
   <h3>3D reconstruction</h3>
   <div class="split">
     <div class="compare" id="bunny-compare">
-      <div class="compare-box" style="--pos: 50%">
-        <img class="compare-ref" src="static/images/bunny3d_view_ref_front.png" width="538" height="600" alt="Ground-truth depth map of the Stanford bunny">
-        <img class="compare-ours" src="static/images/bunny3d_view_ours_front.png" width="538" height="600" alt="Our reconstruction, rendered as a depth map">
-        <span class="compare-tag tag-left">Ours</span>
-        <span class="compare-tag tag-right">Ground truth</span>
-        <input type="range" class="compare-range" min="0" max="100" value="50" aria-label="Reveal: drag left for ground truth, right for ours">
-      </div>
       <div class="seg seg-views" role="group" aria-label="View direction">
         <button type="button" value="front" aria-pressed="true">View 1</button>
         <button type="button" value="off0" aria-pressed="false">View 2</button>
         <button type="button" value="off90" aria-pressed="false">View 3</button>
         <button type="button" value="off180" aria-pressed="false">View 4</button>
         <button type="button" value="off270" aria-pressed="false">View 5</button>
+      </div>
+      <div class="compare-box" style="--pos: 50%">
+        <img class="compare-ref" src="static/images/bunny3d_view_ref_front.png" width="538" height="600" alt="Ground-truth depth map of the Stanford bunny">
+        <img class="compare-ours" src="static/images/bunny3d_view_ours_front.png" width="538" height="600" alt="Our reconstruction, rendered as a depth map">
+        <span class="compare-tag tag-left">Ours</span>
+        <span class="compare-tag tag-right">Ground truth</span>
+        <input type="range" class="compare-range" min="0" max="100" value="50" aria-label="Reveal: drag left for ground truth, right for ours">
       </div>
     </div>
     <div class="prose">
@@ -476,27 +496,6 @@
     </div>
   </div>
 
-  <h3>Which part matters</h3>
-  <div class="prose">
-    <p>A 2&times;2 ablation over kernel and optimizer on a five-reflector cold start, 10 seeds each. A trial succeeds when every centre lands within 0.1 bin. The right kernel is necessary but not sufficient; global search cannot rescue a kernel that discards sidelobe energy.</p>
-  </div>
-  <div class="table-wrap">
-    <table class="ablation">
-      <caption>Success rate and final complex spatial MSE.</caption>
-      <thead>
-        <tr><th scope="col">Kernel</th><th scope="col">AdamW</th><th scope="col">SFW</th></tr>
-      </thead>
-      <tbody>
-        <tr><th scope="row">Gaussian</th><td>0% <span class="sub">8.54&times;10<sup>&minus;3</sup></span></td><td>10% <span class="sub">6.71&times;10<sup>&minus;3</sup></span></td></tr>
-        <tr><th scope="row">Dirichlet</th><td>0% <span class="sub">1.18&times;10<sup>&minus;2</sup></span></td><td class="is-ours">100% <span class="sub">5.32&times;10<sup>&minus;9</sup></span></td></tr>
-      </tbody>
-    </table>
-  </div>
-
-  <h3>Beyond radar</h3>
-  <div class="prose">
-    <p>A finite pupil produces the same response in visible light. Fitting four coherent beacons through a 5&nbsp;mm pupil at 532&nbsp;nm, the Dirichlet fit reaches 0.021 waves of residual wavefront error at one main-lobe width of separation, against 0.051 for a diffraction-matched Gaussian and 0.110 for back-projection.</p>
-  </div>
 </section>
 
 <!-- ===================================================================== -->
@@ -541,6 +540,7 @@
 <script defer src="static/js/interference.js"></script>
 <script defer src="static/js/surfel.js"></script>
 <script defer src="static/js/optim.js"></script>
+<script defer src="static/js/fidelity.js"></script>
 <script defer src="static/js/page.js"></script>
 </body>
 </html>
