@@ -418,8 +418,17 @@
       <div class="bar-actions"><button type="button" class="icon-btn" data-action="new" aria-label="New ground truth" data-tip="New ground truth"><svg aria-hidden="true"><use href="#i-dice"/></svg></button></div>
       <div class="tool">
         <div class="seg" data-group="dim" role="group" aria-label="Dimension">
-          <button type="button" value="1d" aria-pressed="false">1D range profile</button>
-          <button type="button" value="2d" aria-pressed="true">2D spectrum</button>
+          <button type="button" value="1d" aria-pressed="false" title="1D range profile">1D</button>
+          <button type="button" value="2d" aria-pressed="true" title="2D spectrum">2D</button>
+        </div>
+      </div>
+      <div class="tool">
+        <span class="tool-label" id="fsh-label">Shape</span>
+        <div class="seg" data-group="fitshape" role="group" aria-labelledby="fsh-label">
+          <button type="button" value="random" aria-pressed="true">Random</button>
+          <button type="button" value="square" aria-pressed="false">Square</button>
+          <button type="button" value="star" aria-pressed="false">Star</button>
+          <button type="button" value="A" aria-pressed="false">Letter A</button>
         </div>
       </div>
       <div class="tool">
@@ -508,8 +517,8 @@
       <div class="bar-actions" data-only="1d" hidden><button type="button" class="icon-btn is-primary is-attention" data-action="run" aria-label="Run" data-tip="Run"><svg aria-hidden="true"><use href="#i-play"/></svg></button><button type="button" class="icon-btn" data-action="new" aria-label="New scene" data-tip="New scene"><svg aria-hidden="true"><use href="#i-dice"/></svg></button></div>
       <div class="tool">
         <div class="seg" data-group="dim" role="group" aria-label="Dimension">
-          <button type="button" value="1d" aria-pressed="false">1D profile</button>
-          <button type="button" value="2d" aria-pressed="true">2D spectrum</button>
+          <button type="button" value="1d" aria-pressed="false" title="1D range profile">1D</button>
+          <button type="button" value="2d" aria-pressed="true" title="2D spectrum">2D</button>
         </div>
       </div>
       <div class="tool" data-only="2d">

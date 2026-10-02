@@ -12,7 +12,7 @@
 const Fidelity = (() => {
   const tmp = [0, 0], der = [0, 0];
   // Ground-truth edits share these limits in 1D and 2D.
-  const MIN_REFLECTORS = 1, MAX_REFLECTORS = 6;
+  const MIN_REFLECTORS = 1, MAX_REFLECTORS = 24;
   // Amplitude for a reflector the reader adds: fixed magnitude, random phase.
   function newAmplitude() {
     const ph = Math.random() * 2 * Math.PI;
@@ -543,7 +543,7 @@ function makeFit2D(stage, out) {
   const N = 16;            // bins per axis
   const OS = 3;            // fitting samples per bin per axis (48 x 48)
   const RES = 128;         // display resolution per axis (8 px per bin)
-  let seed = 11, M = 16, scale = "lin";
+  let seed = 11, M = 16, scale = "lin", shape = "random";
   let scene, dfit, gfit, gstate, iter, raf = null;
   const tmp1 = [0, 0], tmp2 = [0, 0];
   const wrap = (d) => d - N * Math.round(d / N);
@@ -566,20 +566,33 @@ function makeFit2D(stage, out) {
   }
 
   // Raw amplitudes plus buildScene(), as in the 1D view, so drags rebuild.
-  function newScene() {
+  // shape "random": 2-4 reflectors with random amplitudes and phases.
+  // Otherwise a template from Race2D (square, star, letter A) with unit
+  // amplitudes; in phase at first, random phases after "New ground truth".
+  function newScene(randomPhase = false) {
     const rand = DS.rng(seed);
-    const K = 2 + Math.floor(rand() * 3);
-    const C = [];
-    while (C.length < K) {
-      const p = [5 + rand() * 6, 5 + rand() * 6];
-      if (C.every((q) => Math.hypot(q[0] - p[0], q[1] - p[1]) > 1.5)) C.push(p);
+    let C, braw;
+    if (shape === "random") {
+      const K = 2 + Math.floor(rand() * 3);
+      C = [];
+      while (C.length < K) {
+        const p = [5 + rand() * 6, 5 + rand() * 6];
+        if (C.every((q) => Math.hypot(q[0] - p[0], q[1] - p[1]) > 1.5)) C.push(p);
+      }
+      braw = new Float64Array(K * 2);
+      for (let i = 0; i < K; i++) {
+        const a = 0.45 + 0.55 * rand(), ph = rand() * 2 * Math.PI;
+        braw[i * 2] = a * Math.cos(ph); braw[i * 2 + 1] = a * Math.sin(ph);
+      }
+    } else {
+      C = Race2D.template(shape, N).map((p) => p.slice());
+      braw = new Float64Array(C.length * 2);
+      for (let i = 0; i < C.length; i++) {
+        const ph = randomPhase ? rand() * 2 * Math.PI : 0;
+        braw[i * 2] = Math.cos(ph); braw[i * 2 + 1] = Math.sin(ph);
+      }
     }
-    const braw = new Float64Array(K * 2);
-    for (let i = 0; i < K; i++) {
-      const a = 0.45 + 0.55 * rand(), ph = rand() * 2 * Math.PI;
-      braw[i * 2] = a * Math.cos(ph); braw[i * 2 + 1] = a * Math.sin(ph);
-    }
-    scene = { K, C, braw };
+    scene = { K: C.length, C, braw };
     buildScene();
   }
   function buildScene() {
@@ -801,9 +814,10 @@ function makeFit2D(stage, out) {
     start(m) { M = m; startFit(); },
     stop() { cancelAnimationFrame(raf); raf = null; },
     isRunning() { return raf !== null; },
-    reseed() { seed = (seed * 48271) % 2147483647; newScene(); },
+    reseed() { seed = (seed * 48271) % 2147483647; newScene(shape !== "random"); },
     redraw() { if (scene) draw(); },
     setScale(v) { scale = v; if (scene) draw(); },
+    setShape(v) { shape = v; newScene(); },
   };
 }
 
@@ -835,6 +849,8 @@ function makeFit2D(stage, out) {
   const countGroup = root.querySelector('[data-group="count"]');
   const scaleGroup = root.querySelector('[data-group="scale"]');
   const scaleTool = scaleGroup.closest(".tool");
+  const shapeGroup = root.querySelector('[data-group="fitshape"]');
+  const shapeTool = shapeGroup.closest(".tool");
   let mode = "2d", M = 16, visible = false, dirty = true;
 
   const press = (group, value) => {
@@ -847,6 +863,7 @@ function makeFit2D(stage, out) {
     if (M > MAX_COUNT[mode]) M = MAX_COUNT[mode];
     press(countGroup, M);
     scaleTool.hidden = mode !== "2d";
+    shapeTool.hidden = mode !== "2d";
   }
   function run() {
     if (!visible) { dirty = true; return; }
@@ -870,6 +887,13 @@ function makeFit2D(stage, out) {
     if (!btn) return;
     scale = btn.value; press(scaleGroup, scale);
     if (views["2d"]) views["2d"].setScale(scale);
+  });
+  shapeGroup.addEventListener("click", (e) => {
+    const btn = e.target.closest("button");
+    if (!btn) return;
+    press(shapeGroup, btn.value);
+    view("2d").setShape(btn.value);
+    run();
   });
   root.querySelector('[data-action="new"]').addEventListener("click", () => { view(mode).reseed(); run(); });
   DS.whenVisible(root, (v) => {
