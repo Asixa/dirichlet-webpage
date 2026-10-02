@@ -197,7 +197,7 @@
 <section class="wrap block" aria-labelledby="key-insights">
   <h2 id="key-insights">Key Insights</h2>
   <div class="prose">
-    <p><strong>Splatting primitives should be derived from the underlying image-formation physics.</strong> In coherent sensing modalities such as <strong>radar and sonar</strong>, a point reflector modeled as a finite-length complex exponential produces a <strong>Dirichlet point-spread function</strong> under a <strong>rectangular-window DFT</strong>. Extending splatting to new sensing modalities calls for primitives that capture how each sensor forms an image, including its point-spread function and the way signals combine.</p>
+    <p><strong>Splatting primitives should be derived from the underlying image-formation physics.</strong> In coherent sensing modalities such as <strong>radar and sonar</strong>, a point reflector modeled as a finite-length complex exponential produces a <strong>Dirichlet point-spread function</strong> under a <strong>rectangular-window DFT</strong>.</p>
   </div>
 </section>
 
@@ -308,7 +308,7 @@
 <section class="wrap block" aria-labelledby="surfels">
   <h2 id="surfels">Surfel-Aware Dirichlet Splat</h2>
   <div class="prose">
-    <p>We represent the scene as planar surfels. Each surfel contributes a separable Dirichlet kernel multiplied by a complex amplitude. The amplitude incorporates the surfel appearance factors, while the rectangular-window kernel is determined by the per-axis FFT lengths.</p>
+    <p>We represent the scene as planar surfels. Each surfel reradiates a complex amplitude with magnitude from cell area, foreshortening, Fresnel reflectivity, and free-space spreading, and phase from round-trip propagation.</p>
   </div>
   <div class="eq eq-main">
     \[ \hat{Y}(\mathbf{f}) = \sum_{i=1}^{S} \alpha_i \cdot
@@ -409,7 +409,7 @@
 <section class="wrap block" aria-labelledby="exact">
   <h2 id="exact">Forward Model Fidelity</h2>
   <div class="prose">
-    <p>On the synthetic three-reflector range profile in the paper, three Dirichlet primitives reproduce the reference response to the numerical floor (&minus;120&nbsp;dB magnitude normalized mean squared error, NMSE). A fixed-width Gaussian representation with 96 primitives reaches &minus;30.1&nbsp;dB, using 32&times; as many primitives. This experiment characterizes the representation mismatch between a Gaussian envelope and the finite-window DFT response.</p>
+    <p>On the synthetic three-reflector range profile in the paper, three Dirichlet primitives reproduce the reference response to the numerical floor (&minus;120&nbsp;dB magnitude normalized mean squared error, NMSE). A fixed-width Gaussian representation with 96 primitives reaches &minus;30.1&nbsp;dB, using 32&times; as many primitives.</p>
     <p class="howto">The browser demonstration generates scenes with two to four complex reflectors and supports 1D range profiles and 2D spectra. The Gaussian primitive count is adjustable. Gaussian centers and widths are optimized by Levenberg&ndash;Marquardt, with real signed weights determined by least squares. The Dirichlet fit uses one primitive per reflector, with residual-certificate placement and local refinement. Both fits are evaluated by magnitude NMSE. This free-width Gaussian demonstration differs from the fixed-width comparison reported above. Dots indicate primitive centers.</p>
   </div>
 
@@ -506,9 +506,10 @@
       <li><strong>Variable projection.</strong> The forward model is linear in the complex amplitudes. For fixed centers, we solve \(\mathbf b^\star = (G + \lambda I)^{-1} q\) and optimize the reduced objective over centers. Here \(G\) is the normalized dictionary Gram matrix, \(q\) is the normalized dictionary correlation with the measurements, and \(\lambda\) is the ridge weight. This elimination removes amplitudes from the nonlinear search.</li>
       <li><strong>Residual certificate.</strong> We evaluate \(s(\mathbf x) = |\langle a(\mathbf x),\, \mathbf y - A\mathbf b^\star\rangle| / \|a(\mathbf x)\|\) across the candidate grid. Here \(a(\mathbf x)\) is the spectral response of a candidate primitive, \(A\) is the current response dictionary, and \(\mathbf y\) contains the measurements. The normalized residual correlation identifies candidate locations beyond the current local basin.</li>
       <li><strong>Hard replacement.</strong> The lowest-utility primitive is replaced at the certificate maximizer. Utility combines relative amplitude with a measure of the contribution not represented by neighboring primitives. Replacement preserves the primitive budget and limits support growth into sidelobes and noise.</li>
-      <li><strong>Sliding.</strong> Optional Levenberg&ndash;Marquardt refinement updates the centers jointly. The paper also applies periodic coupled low-resolution corrections, accepted when the full-resolution loss decreases. DSFW does not carry a general convergence guarantee.</li>
+      <li><strong>Sliding.</strong> Optional Levenberg&ndash;Marquardt refinement updates the centers jointly. The paper also applies periodic coupled low-resolution corrections, accepted when the full-resolution loss decreases.</li>
     </ol>
-    <p class="howto">The browser comparison initializes both optimizers with the same random centers and a primitive budget exceeding the reflector count by two. A reflector is counted as recovered when a primitive lies within 0.1 bin of its position. Primitive positions can be adjusted during optimization to compare subsequent updates. The <em>Certificate</em> view displays the candidate-location scores used by DSFW. These simplified browser implementations illustrate the optimization mechanisms.</p>
+    <p>DSFW carries no convergence guarantee.</p>
+    <p class="howto">The browser comparison initializes both optimizers with the same random centers and a primitive budget exceeding the reflector count by two. A reflector is counted as recovered when a primitive lies within 0.1 bin of its position. Primitive positions can be adjusted during optimization to compare subsequent updates. The <em>Certificate</em> view displays the candidate-location scores used by DSFW.</p>
   </div>
 
   <div class="demo" id="demo-opt">
@@ -627,7 +628,7 @@
 
   <h3>Real Sub-THz Measurements</h3>
   <div class="prose">
-    <p>We evaluate the method on three metal-letter scans acquired with a custom 120&nbsp;GHz software-defined radio. The reconstruction preserves the separated letter structures while reproducing the measured finite-window sidelobes.</p>
+    <p>We evaluate the method on three metal-letter scans acquired with a custom 120&nbsp;GHz software-defined radio. Our reconstruction preserves the three separated letters while reproducing the measured finite-window sidelobes.</p>
   </div>
   <div class="thz-row">
     <figure class="fig" style="flex: 2.64">
@@ -670,7 +671,7 @@
            alt="Our reconstruction of the printed bunny, showing its outline surrounded by diffraction sidelobes.">
     </figure>
     <div class="prose">
-      <p>We also evaluate the method on a 3D-printed Stanford bunny coated with conductive ink and scanned with the same transceiver. A dense field of Dirichlet atoms with fixed lattice centers is fitted to the raw complex range profiles using the same kernel, forward model, and loss. The displayed reconstruction shows the recovered support.</p>
+      <p>We also evaluate the method on a 3D-printed Stanford bunny coated with conductive ink and scanned with the same transceiver. A dense field of Dirichlet atoms with fixed lattice centers is fitted to the raw complex range profiles using the same kernel, forward model, and loss.</p>
     </div>
   </div>
 
