@@ -73,10 +73,26 @@
     });
   }
 
+  // Analytics events (GA4). PDF downloads and outbound links are recorded by
+  // GA4 enhanced measurement; these add what it cannot see. No-op when the
+  // tag is blocked or absent.
+  const track = (name, params) => { if (typeof window.gtag === "function") window.gtag("event", name, params); };
+  // First use of each interactive figure, once per page view.
+  for (const demo of document.querySelectorAll(".demo[id]")) {
+    const first = () => {
+      track("demo_interact", { demo: demo.id.replace(/^demo-/, "") });
+      demo.removeEventListener("pointerdown", first, true);
+      demo.removeEventListener("input", first, true);
+    };
+    demo.addEventListener("pointerdown", first, true);
+    demo.addEventListener("input", first, true);
+  }
+
   // BibTeX copy.
   const copyBtn = document.querySelector(".bib-copy");
   if (copyBtn) {
     copyBtn.addEventListener("click", async () => {
+      track("copy_bibtex");
       const text = document.getElementById("bibtex-text").textContent;
       try {
         await navigator.clipboard.writeText(text);
