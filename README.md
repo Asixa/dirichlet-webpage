@@ -25,8 +25,8 @@ branch, and add a DNS `CNAME` record `dirichlet` -> `<user>.github.io`; the
 
 ## Before publishing
 
-- `index.html`: fill in the arXiv and code links (search for `TODO`), then
-  remove `class="is-pending"` and `aria-disabled="true"` from those two pills.
+- `index.html`: fill in the code link (search for `TODO`), then remove
+  `class="is-pending"` and `aria-disabled="true"` from that pill.
 - `static/pdf/Dirichlet_Splatting.pdf` is the camera-ready PDF (12 MB). Replace
   it, or point the Paper button at the ACM DL / arXiv PDF instead.
 
