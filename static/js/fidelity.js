@@ -846,7 +846,8 @@ function makeFit2D(stage, out) {
   // Per-view limits: 2D Gaussian fits above 64 splats take several seconds.
   const MAX_COUNT = { "1d": 96, "2d": 64 };
   const modeGroup = root.querySelector('[data-group="dim"]');
-  const countGroup = root.querySelector('[data-group="count"]');
+  const countRange = root.querySelector('input[name="count"]');
+  const countOut = root.querySelector("[data-count-out]");
   const scaleGroup = root.querySelector('[data-group="scale"]');
   const scaleTool = scaleGroup.closest(".tool");
   const shapeGroup = root.querySelector('[data-group="fitshape"]');
@@ -859,9 +860,9 @@ function makeFit2D(stage, out) {
 
   function applyMode() {
     for (const k of Object.keys(stages)) stages[k].hidden = k !== mode;
-    for (const b of countGroup.querySelectorAll("button")) b.hidden = +b.value > MAX_COUNT[mode];
+    countRange.max = MAX_COUNT[mode];
     if (M > MAX_COUNT[mode]) M = MAX_COUNT[mode];
-    press(countGroup, M);
+    countRange.value = countOut.value = M;
     scaleTool.hidden = mode !== "2d";
     shapeTool.hidden = mode !== "2d";
   }
@@ -877,10 +878,12 @@ function makeFit2D(stage, out) {
     if (!btn || btn.value === mode) return;
     mode = btn.value; press(modeGroup, mode); applyMode(); run();
   });
-  countGroup.addEventListener("click", (e) => {
-    const btn = e.target.closest("button");
-    if (!btn) return;
-    M = +btn.value; press(countGroup, M); run();
+  // The label tracks the thumb on every move, but a 2D fit can take seconds,
+  // so the fit only restarts on release ("change"), not on each "input".
+  countRange.addEventListener("input", () => { countOut.value = countRange.value; });
+  countRange.addEventListener("change", () => {
+    if (+countRange.value === M) return;
+    M = +countRange.value; run();
   });
   scaleGroup.addEventListener("click", (e) => {
     const btn = e.target.closest("button");

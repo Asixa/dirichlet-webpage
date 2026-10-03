@@ -198,6 +198,10 @@ a:hover { text-decoration-thickness: 2px; }
 .tool-label { color: var(--muted); font-size: 0.85rem; }
 .bar-actions { display: flex; align-items: center; gap: 6px; padding-right: 16px; border-right: 1px solid var(--panel-edge); }
 .bar-note { margin-left: auto; }
+/* Inline slider in the bar; the fixed-width value keeps the bar from
+   reflowing as the count goes from one to two digits. */
+.tool-range { width: 140px; }
+.tool-value { min-width: 2ch; font-size: 0.85rem; font-weight: 600; font-variant-numeric: tabular-nums; color: var(--ink); }
 .hint { color: var(--muted); font-size: 0.82rem; margin-right: 6px; }
 
 /* Icon buttons with a CSS tooltip from data-tip (shown on hover and on
@@ -238,6 +242,16 @@ a:hover { text-decoration-thickness: 2px; }
 @media (prefers-reduced-motion: reduce) {
   .icon-btn.is-attention::before { animation: none; box-shadow: 0 0 0 3px rgba(43, 102, 166, 0.35); }
 }
+/* Until that first click its tooltip also stays up, in the accent color,
+   so readers see that the demo waits for them. Afterwards it reverts to
+   the hover-only tooltip above (and shows "Pause" while running). */
+.icon-btn.is-attention[data-tip]::after {
+  content: "Click to run";
+  opacity: 1; background: var(--dir);
+  animation: attention-tip 1.6s ease-in-out infinite;
+}
+@keyframes attention-tip { 50% { transform: translateY(-3px); } }
+@media (prefers-reduced-motion: reduce) { .icon-btn.is-attention[data-tip]::after { animation: none; } }
 
 /* First-view gesture overlay on each editable canvas (DS.pointEditor):
    a dark veil that flashes twice to catch the eye, a hand that drags a

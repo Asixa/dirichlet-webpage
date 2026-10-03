@@ -328,6 +328,8 @@ const Race2D = (() => {
 // =========================================================================
 (() => {
   if (typeof document === "undefined") return;
+  // Captured now: currentScript is only set while this file first runs.
+  const thisScript = document.currentScript;
   const root = document.getElementById("demo-race2d");
   if (!root) return;
   const bar = root.closest(".demo").querySelector(".demo-bar");
@@ -359,7 +361,15 @@ const Race2D = (() => {
       setTimeout(() => onState(handle(msg)), 0);
     };
     try {
-      const src = document.querySelector('script[src$="race2d.js"]').src.replace(/race2d\.js$/, "race2d-worker.js");
+      // Worker URL (stamped with its own content hash) plus the versions of
+      // the scripts it imports, so a deploy never mixes old and new code.
+      const url = new URL(thisScript.dataset.worker, document.baseURI);
+      for (const name of ["dsp", "fidelity", "race2d"]) {
+        const tag = document.querySelector(`script[src*="static/js/${name}.js"]`);
+        const v = tag && new URL(tag.src).searchParams.get("v");
+        if (v) url.searchParams.set(name, v);
+      }
+      const src = url.href;
       const w = new Worker(src);
       w.onmessage = (e) => onState(e.data);
       // file:// pages and strict CSPs refuse workers; fall back quietly.

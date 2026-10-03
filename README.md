@@ -13,6 +13,20 @@ Pages, push this folder as the repository root, enable Pages on the default
 branch, and add a DNS `CNAME` record `dirichlet` -> `<user>.github.io`; the
 `CNAME` file here tells Pages which domain to serve.
 
+## Cache busting
+
+GitHub Pages caches each file for 10 minutes, independently, so a fresh
+`index.html` can meet a stale script. `tools/stamp_assets.py` appends a
+content hash (`?v=xxxxxxxx`) to every local script, stylesheet, and the Web
+Worker URL in `index.html`. Run it before committing, or install the hook:
+
+```sh
+printf '#!/bin/sh
+python tools/stamp_assets.py || exit 1
+git add index.html
+' > .git/hooks/pre-commit
+```
+
 ## Search engines and link previews
 
 - `index.html` `<head>` carries the description, canonical URL, Open Graph /
