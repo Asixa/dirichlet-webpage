@@ -81,7 +81,7 @@
   <link rel="preload" href="static/vendor/fonts/SourceSerif4-normal-latin.woff2" as="font" type="font/woff2" crossorigin>
   <link rel="stylesheet" href="static/vendor/fonts.css">
   <link rel="stylesheet" href="static/vendor/katex/katex.min.css">
-  <link rel="stylesheet" href="static/css/style.css?v=6bdd0d2a">
+  <link rel="stylesheet" href="static/css/style.css?v=42d022c9">
 
   <!-- Google Analytics 4 (same property as xingyuchen.me; reports split by hostname).
        async: the tag never blocks first paint. -->
@@ -137,8 +137,7 @@
         <svg aria-hidden="true"><use href="#i-arxiv"/></svg>
         arXiv
       </a>
-      <!-- TODO: replace href with the code repository URL once it is public. -->
-      <a class="pill is-pending" href="#" aria-disabled="true" title="Coming soon">
+      <a class="pill" href="https://github.com/Asixa/Dirichlet-Splatting">
         <svg aria-hidden="true"><use href="#i-code"/></svg>
         Code
       </a>
@@ -432,9 +431,15 @@
         </div>
       </div>
       <div class="tool">
-        <label class="tool-label" for="fc-range">Gaussians</label>
-        <input type="range" class="tool-range" id="fc-range" name="count" min="3" max="64" step="1" value="16">
-        <output class="tool-value" for="fc-range" data-count-out>16</output>
+        <span class="tool-label" id="fc-label">Gaussians</span>
+        <div class="seg" data-group="count" role="group" aria-labelledby="fc-label">
+          <button type="button" value="3" aria-pressed="false">3</button>
+          <button type="button" value="8" aria-pressed="false">8</button>
+          <button type="button" value="16" aria-pressed="true">16</button>
+          <button type="button" value="32" aria-pressed="false">32</button>
+          <button type="button" value="64" aria-pressed="false">64</button>
+          <button type="button" value="96" aria-pressed="false">96</button>
+        </div>
       </div>
       <div class="tool">
         <span class="tool-label" id="fs-label">Color scale</span>
@@ -705,7 +710,7 @@
 <script defer src="static/js/interference.js?v=b2d74b0d"></script>
 <script defer src="static/js/surfel.js?v=21d44322"></script>
 <script defer src="static/js/optim.js?v=c8691e49"></script>
-<script defer src="static/js/fidelity.js?v=3a3561ba"></script>
+<script defer src="static/js/fidelity.js?v=be9970df"></script>
 <script defer src="static/js/race2d.js?v=5e569f35" data-worker="static/js/race2d-worker.js?v=59450639"></script>
 <script defer src="static/js/page.js?v=3478945e"></script>
 </body>
